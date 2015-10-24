@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright 2015 MbientLab Inc. All rights reserved.
   ~
@@ -30,28 +29,9 @@
   ~ contact MbientLab Inc, at www.mbientlab.com.
   -->
 
-<resources>
-    <style name="Widget.ActionBar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
-        <item name="background">@color/actionBarColor</item>
-        <item name="android:background">@color/actionBarColor</item>
-        <item name="android:backgroundStacked">@color/actionBarColor</item>
-        <item name="android:backgroundSplit">@color/actionBarColor</item>
-        <item name="android:displayOptions">useLogo|showHome|showTitle</item>
-    </style>
-
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
-        <item name="homeAsUpIndicator">@drawable/ic_drawer</item>
-        <item name="android:actionBarStyle">@style/Widget.ActionBar</item>
-        <item name="actionBarStyle">@style/Widget.ActionBar</item>
-
-    </style>
-
-    <style name="HorizontalLine">
-        <item name="android:layout_height">2dp</item>
-        <item name="android:layout_marginBottom">10dp</item>
-        <item name="android:layout_marginTop">5dp</item>
-        <item name="android:layout_width">fill_parent</item>
-    </style>
-</resources>
+<ListView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:choiceMode="singleChoice"
+    android:divider="@android:color/transparent" android:dividerHeight="0dp"
+    android:background="#cccc"
+    tools:context="com.mbientlab.metawear.app.NavigationDrawerFragment" />

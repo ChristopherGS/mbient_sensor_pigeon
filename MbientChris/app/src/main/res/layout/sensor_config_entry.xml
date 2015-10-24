@@ -30,28 +30,36 @@
   ~ contact MbientLab Inc, at www.mbientlab.com.
   -->
 
-<resources>
-    <style name="Widget.ActionBar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
-        <item name="background">@color/actionBarColor</item>
-        <item name="android:background">@color/actionBarColor</item>
-        <item name="android:backgroundStacked">@color/actionBarColor</item>
-        <item name="android:backgroundSplit">@color/actionBarColor</item>
-        <item name="android:displayOptions">useLogo|showHome|showTitle</item>
-    </style>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:id="@+id/sensor_config_entry_layout"
+    android:layout_height="wrap_content"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin">
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
-        <item name="homeAsUpIndicator">@drawable/ic_drawer</item>
-        <item name="android:actionBarStyle">@style/Widget.ActionBar</item>
-        <item name="actionBarStyle">@style/Widget.ActionBar</item>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:id="@+id/config_name"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true" />
 
-    </style>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:id="@+id/config_value"
+        android:layout_below="@+id/config_name"
+        android:layout_alignParentStart="true" />
 
-    <style name="HorizontalLine">
-        <item name="android:layout_height">2dp</item>
-        <item name="android:layout_marginBottom">10dp</item>
-        <item name="android:layout_marginTop">5dp</item>
-        <item name="android:layout_width">fill_parent</item>
-    </style>
-</resources>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/label_edit"
+        android:id="@+id/edit_config_value"
+        android:textColor="@color/action_text"
+        android:layout_below="@+id/config_name"
+        android:layout_alignParentEnd="true" />
+
+</RelativeLayout>
