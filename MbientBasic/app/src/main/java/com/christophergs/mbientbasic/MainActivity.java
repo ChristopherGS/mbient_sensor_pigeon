@@ -6,6 +6,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
+import android.widget.Switch;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 
@@ -15,11 +16,24 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.View;
+
 
 import static com.mbientlab.metawear.MetaWearBoard.ConnectionStateHandler;
+
+import com.mbientlab.metawear.Message;
 import com.mbientlab.metawear.MetaWearBleService;
 import com.mbientlab.metawear.MetaWearBoard;
 import static com.mbientlab.metawear.AsyncOperation.CompletionHandler;
+import com.mbientlab.metawear.AsyncOperation;
+import com.mbientlab.metawear.RouteManager;
+
+import com.mbientlab.metawear.UnsupportedModuleException;
+import com.mbientlab.metawear.data.CartesianFloat;
+import com.mbientlab.metawear.data.CartesianShort;
+import com.mbientlab.metawear.module.Accelerometer;
+import com.mbientlab.metawear.module.Led;
+import com.mbientlab.metawear.module.*;
 
 public class MainActivity extends AppCompatActivity implements ServiceConnection {
 
@@ -27,6 +41,10 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     private MetaWearBoard mwBoard;
     private final String MW_MAC_ADDRESS = "D5:9C:DC:37:BA:AE";
     private static final String TAG = "MBIENT_TAG";
+    private Led ledModule;
+    private static final float ACC_RANGE = 8.f, ACC_FREQ= 50.f;
+    private static final String STREAM_KEY= "accel_stream";
+    private Accelerometer accelModule= null;
 
     private void toastIt( String msg ) {
         Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
@@ -77,21 +95,23 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                     @Override
                     public void failure(Throwable error) {
                         toastIt("Error");
-                        Log.e("test", "Error reading device information", error);
+                        Log.e(TAG, "Error reading device information", error);
                     }
                 });
+
+                turnOnLed();
             }
 
             @Override
             public void disconnected() {
-                Toast.makeText(MainActivity.this, "Disconnected", Toast.LENGTH_LONG).show();
-                Log.i("test", "Disconnected");
+                toastIt("Disconnected from board");
+                Log.i(TAG, "Disconnected");
             }
 
             @Override
             public void failure(int status, final Throwable error) {
                 Toast.makeText(MainActivity.this, error.getLocalizedMessage(), Toast.LENGTH_LONG).show();
-                Log.e("test", "Error connecting", error);
+                Log.e(TAG, "Error connecting", error);
             }
 
         });
@@ -105,5 +125,75 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         toastIt("trying to connect to mbient");
         mwBoard.connect();
     }
+
+    public void stopMbient(View view) {
+        toastIt("disconnecting");
+        mwBoard.disconnect();
+    }
+
+
+    public void streamAccelerometer(View view) {
+        toastIt("Stream accelerometer data");
+        final Switch mySwitch= (Switch) view;
+
+        try {
+            final Accelerometer accelModule = mwBoard.getModule(Accelerometer.class);
+            final Logging loggingModule = mwBoard.getModule(Logging.class);
+            if (mySwitch.isChecked()) {
+                accelModule.setOutputDataRate(50.f);
+                accelModule.setAxisSamplingRange(ACC_RANGE);
+
+                accelModule.routeData()
+                    .fromAxes().stream("accel_stream_key")
+                    .commit().onComplete(new CompletionHandler<RouteManager>() {
+                        @Override
+                        public void success(RouteManager result) {
+                            result.subscribe("accel_stream_key", new RouteManager.MessageHandler() {
+                                @Override
+                                public void process(Message message) {
+                                    CartesianFloat axes= message.getData(CartesianFloat.class);
+                                    Log.i(TAG, axes.toString());
+                                }
+                            });
+                        }
+                        @Override
+                        public void failure(Throwable error) {
+                            Log.e(TAG, "Error committing route", error);
+                        }
+                    });
+                accelModule.enableAxisSampling();
+                loggingModule.startLogging();
+                accelModule.start();
+
+            } else {
+                loggingModule.stopLogging();
+                accelModule.disableAxisSampling();
+                accelModule.stop();
+            }
+        } catch (UnsupportedModuleException e) {
+            Toast.makeText(this, e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public void turnOnLed() {
+        try {
+            Led ledModule= mwBoard.getModule(Led.class);
+            ledModule.configureColorChannel(Led.ColorChannel.BLUE)
+                    .setRiseTime((short) 0).setPulseDuration((short) 1000)
+                    .setRepeatCount((byte) -1).setHighTime((short) 500)
+                    .setHighIntensity((byte) 16).setLowIntensity((byte) 16)
+                    .commit();
+            ledModule.play(false);
+        } catch (UnsupportedModuleException e) {
+            toastIt("LED problem");
+        Log.e("MainActivity", "No Led on the board", e);
+        }
+    }
+
+    public void ledOff(View view) {
+        Log.e(TAG, "Turn off LED");
+        //ledModule.stop(true); //CAUSES CRASH
+    }
+
 
 }

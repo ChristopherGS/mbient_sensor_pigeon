@@ -5,12 +5,70 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".MainActivity">
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Connect to Mbient"
-        android:gravity="center_vertical"
-        android:id="@+id/mbientButton"
-        android:onClick="startMbient" />
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignEnd="@+id/mbientButton">
+
+        <TableRow
+            android:id="@+id/tableRow5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Connect to sensor"
+                android:gravity="center_vertical"
+                android:id="@+id/mbientButton"
+                android:onClick="startMbient"
+                android:layout_alignParentTop="true"
+                android:layout_alignEnd="@+id/mbientButton"
+                android:layout_marginTop="10dp" />
+
+        </TableRow>
+
+        <TableRow>
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Disconnect from sensor"
+                android:gravity="center_vertical"
+                android:id="@+id/mbientDisconnect"
+                android:onClick="stopMbient"
+                android:layout_below="@+id/mbientButton"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="10dp" />
+        </TableRow>
+
+        <TableRow>
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Turn off LED"
+                android:gravity="center_vertical"
+                android:id="@+id/led_off"
+                android:onClick="ledOff"
+                android:layout_below="@+id/mbientButton"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="10dp" />
+        </TableRow>
+
+        <TableRow>
+            <Switch
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Accelerometer"
+                android:id="@+id/switch1"
+                android:onClick="streamAccelerometer"
+                android:layout_below="@+id/button4"
+                android:layout_alignParentStart="true"
+                android:layout_marginTop="10dp"
+                android:checked="false" />
+
+        </TableRow>
+
+    </TableLayout>
 
 </RelativeLayout>
