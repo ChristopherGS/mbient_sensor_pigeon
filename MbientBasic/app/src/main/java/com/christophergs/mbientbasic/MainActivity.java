@@ -19,7 +19,9 @@ import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.OutputStream;
 import java.util.Timer;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -148,7 +150,8 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     public void streamAccelerometer(View view) {
         toastIt("Stream accelerometer data");
         final Switch mySwitch= (Switch) view;
-        File fileDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+ File.separator +"MBIENT");
+        final File fileDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+ File.separator +"MBIENT"+ File.separator);
+
         if(!fileDir.exists()){
             try{
                 fileDir.mkdir();
@@ -156,7 +159,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                 Log.e(TAG, "file directory not foundr", e);
             }
         }
-
 
         try {
             final Accelerometer accelModule = mwBoard.getModule(Accelerometer.class);
@@ -175,25 +177,23 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                         result.subscribe(STREAM_KEY, new RouteManager.MessageHandler() {
                             @Override
                             public void process(Message message) {
+                                //final fileWriter = new FileWriter(FILENAME);
+                                FileWriter fileWriter = null;
+                                //String FILENAME = "sensor_log.csv";
                                 CartesianFloat axes = message.getData(CartesianFloat.class);
                                 Log.i(TAG, axes.toString());
-                                FileWriter fileWriter = null;
-                                String FILENAME = "sensor_log.csv";
-                                try {
-                                    fileWriter = new FileWriter(Environment.getExternalStorageDirectory().getAbsolutePath()+ File.separator+"MBIENT"+File.separator +FILENAME);
-                                    fileWriter.append(axes.toString());
-                                    fileWriter.append("\n");
+                                String entry = axes.toString();
+                                String path = fileDir+"MBIENT.csv";
+                                OutputStream out;
 
+                                try {
+                                    out = new BufferedOutputStream(new FileOutputStream(path,true));
+                                    out.write(entry.getBytes());
+                                    out.close();
                                 } catch (Exception e) {
                                     Log.e(TAG, "CSV creation error", e);
 
-                                } finally {
-                                    try {
-                                        fileWriter.flush();
-                                        fileWriter.close();
-                                    } catch (IOException e) {
-                                        Log.e(TAG, "Error while flushing/closing fileWriter !!!", e);
-                                    }
+
                                 }
                             }
 
