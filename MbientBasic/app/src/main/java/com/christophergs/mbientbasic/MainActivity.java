@@ -1,5 +1,6 @@
 package com.christophergs.mbientbasic;
 
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -18,6 +19,15 @@ import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 
+import java.io.File;
+import java.util.Timer;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import android.text.format.Time;
+import java.io.FileWriter;
+
 
 import static com.mbientlab.metawear.MetaWearBoard.ConnectionStateHandler;
 
@@ -35,6 +45,8 @@ import com.mbientlab.metawear.module.Accelerometer;
 import com.mbientlab.metawear.module.Led;
 import com.mbientlab.metawear.module.*;
 
+import java.io.FileOutputStream;
+
 public class MainActivity extends AppCompatActivity implements ServiceConnection {
 
     private MetaWearBleService.LocalBinder binder;
@@ -45,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     private static final float ACC_RANGE = 8.f, ACC_FREQ= 50.f;
     private static final String STREAM_KEY= "accel_stream";
     private Accelerometer accelModule= null;
+    private static final String LOG_KEY= "FreeFallDetector";
 
     private void toastIt( String msg ) {
         Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
@@ -135,6 +148,15 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     public void streamAccelerometer(View view) {
         toastIt("Stream accelerometer data");
         final Switch mySwitch= (Switch) view;
+        File fileDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+ File.separator +"MBIENT");
+        if(!fileDir.exists()){
+            try{
+                fileDir.mkdir();
+            } catch (Exception e) {
+                Log.e(TAG, "file directory not foundr", e);
+            }
+        }
+
 
         try {
             final Accelerometer accelModule = mwBoard.getModule(Accelerometer.class);
@@ -143,32 +165,69 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                 accelModule.setOutputDataRate(50.f);
                 accelModule.setAxisSamplingRange(ACC_RANGE);
 
+                Log.i(TAG, "Log size: " + loggingModule.getLogCapacity());
+
                 accelModule.routeData()
-                    .fromAxes().stream("accel_stream_key")
-                    .commit().onComplete(new CompletionHandler<RouteManager>() {
-                        @Override
-                        public void success(RouteManager result) {
-                            result.subscribe("accel_stream_key", new RouteManager.MessageHandler() {
+                    .fromAxes().stream(STREAM_KEY)
+                        .commit().onComplete(new CompletionHandler<RouteManager>() {
+                    @Override
+                    public void success(RouteManager result) {
+                        result.subscribe(STREAM_KEY, new RouteManager.MessageHandler() {
+                            @Override
+                            public void process(Message message) {
+                                CartesianFloat axes = message.getData(CartesianFloat.class);
+                                Log.i(TAG, axes.toString());
+                                FileWriter fileWriter = null;
+                                String FILENAME = "sensor_log.csv";
+                                try {
+                                    fileWriter = new FileWriter(Environment.getExternalStorageDirectory().getAbsolutePath()+ File.separator+"MBIENT"+File.separator +FILENAME);
+                                    fileWriter.append(axes.toString());
+                                    fileWriter.append("\n");
+
+                                } catch (Exception e) {
+                                    Log.e(TAG, "CSV creation error", e);
+
+                                } finally {
+                                    try {
+                                        fileWriter.flush();
+                                        fileWriter.close();
+                                    } catch (IOException e) {
+                                        Log.e(TAG, "Error while flushing/closing fileWriter !!!", e);
+                                    }
+                                }
+                            }
+
+                        });
+                            /*
+                            result.setLogMessageHandler(LOG_KEY, new RouteManager.MessageHandler() {
                                 @Override
                                 public void process(Message message) {
-                                    CartesianFloat axes= message.getData(CartesianFloat.class);
-                                    Log.i(TAG, axes.toString());
+                                    Log.i(TAG, String.format("%tY%<tm%<td-%<tH%<tM%<tS%<tL: Entered Free Fall", message.getTimestamp()));
                                 }
-                            });
+                            });*/
                         }
                         @Override
-                        public void failure(Throwable error) {
+                        public void failure (Throwable error){
                             Log.e(TAG, "Error committing route", error);
                         }
                     });
-                accelModule.enableAxisSampling();
-                loggingModule.startLogging();
-                accelModule.start();
+                    accelModule.enableAxisSampling();
+                    loggingModule.startLogging(true);
+                    accelModule.start();
 
             } else {
                 loggingModule.stopLogging();
                 accelModule.disableAxisSampling();
                 accelModule.stop();
+
+                loggingModule.downloadLog(0.f, new Logging.DownloadHandler() {
+                    @Override
+                    public void onProgressUpdate(int nEntriesLeft, int totalEntries) {
+                        if (nEntriesLeft == 0) {
+                            Log.i(TAG, "Log download complete");
+                        }
+                    }
+                });
             }
         } catch (UnsupportedModuleException e) {
             Toast.makeText(this, e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
@@ -193,6 +252,25 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     public void ledOff(View view) {
         Log.e(TAG, "Turn off LED");
         //ledModule.stop(true); //CAUSES CRASH
+    }
+
+    public void saveData(View view) {
+        Time now = new Time();
+        now.setToNow();
+        String sTime = now.format("%Y_%m_%d_%H_%M_%S");
+        String FILENAME = "sensor_log.csv";
+        //String entry = sTime + "," +
+                //acceleration_x.getText().toString() + "," +
+                //acceleration_y.getText().toString() + "," +
+                //acceleration_z.getText().toString() + ",\n";
+        try {
+            FileOutputStream out = openFileOutput( FILENAME, Context.MODE_APPEND );
+            //out.write( entry.getBytes() );
+            out.close();
+            toastIt("Data saved to csv");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
