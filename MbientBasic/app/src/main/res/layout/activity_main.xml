@@ -69,6 +69,18 @@
 
         </TableRow>
 
+        <TableRow>
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Send file to server"
+                android:gravity="center_vertical"
+                android:id="@+id/sendFile"
+                android:onClick="sendFile"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="10dp" />
+        </TableRow>
+
     </TableLayout>
 
 </RelativeLayout>

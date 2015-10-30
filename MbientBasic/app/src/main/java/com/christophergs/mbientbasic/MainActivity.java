@@ -1,6 +1,7 @@
 package com.christophergs.mbientbasic;
 
 import android.os.Environment;
+import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -10,6 +11,7 @@ import android.widget.Toast;
 import android.widget.Switch;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
+import android.os.StrictMode;
 
 import android.app.Activity;
 import android.content.*;
@@ -19,9 +21,13 @@ import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Timer;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -73,6 +79,16 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         ///< Bind the service when the activity is created
         getApplicationContext().bindService(new Intent(this, MetaWearBleService.class),
                 this, Context.BIND_AUTO_CREATE);
+
+        // TEMPORARY HACK - should use async
+        int SDK_INT = android.os.Build.VERSION.SDK_INT;
+        if (SDK_INT > 8)
+        {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
+                    .permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+
+        }
 
     }
 
@@ -150,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     public void streamAccelerometer(View view) {
         toastIt("Stream accelerometer data");
         final Switch mySwitch= (Switch) view;
-        final File fileDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+ File.separator +"MBIENT"+ File.separator);
+        final File fileDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+File.separator+"MBIENT");
 
         if(!fileDir.exists()){
             try{
@@ -231,6 +247,44 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
             }
         } catch (UnsupportedModuleException e) {
             Toast.makeText(this, e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private String readStream(InputStream is) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        BufferedReader r = new BufferedReader(new InputStreamReader(is),1000);
+        for (String line = r.readLine(); line != null; line =r.readLine()){
+            sb.append(line);
+            Log.i(TAG, sb.toString());
+            if (!r.ready()) {
+                break;
+            }
+        }
+        is.close();
+        return sb.toString();
+    }
+
+    public void sendFile(View view){
+        toastIt("attempt to send file");
+        try {
+            URL url = new URL("http://christophergs.pythonanywhere.com/api/csv");
+
+        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+
+        File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath(),
+                "MBIENT.csv");
+            try {
+                InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+                readStream(in);
+                Log.i(TAG, readStream(in));
+            } catch (Exception e) {
+                Log.e(TAG, "file send error", e);
+            }
+            finally {
+                    urlConnection.disconnect();
+            }
+        } catch (Exception e){
+            Log.e(TAG, "url error", e);
         }
     }
 
