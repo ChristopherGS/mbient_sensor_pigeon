@@ -216,9 +216,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
                             @Override
                             public void process(Message message) {
-                                //final fileWriter = new FileWriter(FILENAME);
                                 FileWriter fileWriter = null;
-                                //String FILENAME = "sensor_log.csv";
                                 CartesianFloat axes = message.getData(CartesianFloat.class);
                                 Log.i(TAG, axes.toString());
 
@@ -232,6 +230,8 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                                 try {
                                     out = new BufferedOutputStream(new FileOutputStream(path, true));
                                     out.write(entry.getBytes());
+                                    out.write(",".getBytes());
+                                    out.write("\n".getBytes());
                                     out.close();
                                 } catch (Exception e) {
                                     Log.e(TAG, "CSV creation error", e);
@@ -278,25 +278,8 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         }
     }
 
-    public static String readStream(InputStream in) {
-        StringBuilder sb = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(in));) {
 
-            String nextLine = "";
-            while ((nextLine = reader.readLine()) != null) {
-                sb.append(nextLine);
-                //if (!reader.ready()) {
-                //    break;
-                //}
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return sb.toString();
-    }
-
-
-    public void sendFile(View view) {
+    public void sendFile(View view){
 
         toastIt("attempt to send file");
         HttpURLConnection urlConnection = null;
@@ -329,7 +312,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
             outputStream = new DataOutputStream(urlConnection.getOutputStream());
             outputStream.writeBytes(twoHyphens + boundary + lineEnd);
-            outputStream.writeBytes("Content-Disposition: form-data; name=\"a_file\";filename=\"" + pathToOurFile + "\"" + lineEnd);
+            outputStream.writeBytes("Content-Disposition: form-data;name=\"a_file\";filename=\"" + pathToOurFile + "\"" + lineEnd);
             outputStream.writeBytes(lineEnd);
 
             //Send request
