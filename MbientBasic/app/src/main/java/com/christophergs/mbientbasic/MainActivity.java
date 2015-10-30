@@ -24,10 +24,14 @@ import android.view.View;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Timer;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -250,41 +254,97 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         }
     }
 
-    private String readStream(InputStream is) throws IOException {
+    public static String readStream(InputStream in) {
         StringBuilder sb = new StringBuilder();
-        BufferedReader r = new BufferedReader(new InputStreamReader(is),1000);
-        for (String line = r.readLine(); line != null; line =r.readLine()){
-            sb.append(line);
-            Log.i(TAG, sb.toString());
-            if (!r.ready()) {
-                break;
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(in));) {
+
+            String nextLine = "";
+            while ((nextLine = reader.readLine()) != null) {
+                sb.append(nextLine);
+                //if (!reader.ready()) {
+                //    break;
+                //}
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        is.close();
         return sb.toString();
     }
 
+
     public void sendFile(View view){
+
         toastIt("attempt to send file");
+        HttpURLConnection urlConnection = null;
+        String boundary =  "*****";
+        DataOutputStream outputStream = null;
+        DataInputStream inputStream = null;
+        String pathToOurFile = Environment.getExternalStorageDirectory().getAbsolutePath()+"/MBIENTMBIENT.csv";
+        String lineEnd = "\r\n";
+        String twoHyphens = "--";
+
+        int bytesRead, bytesAvailable, bufferSize;
+        byte[] buffer;
+        int maxBufferSize = 1*1024*1024;
+
         try {
             URL url = new URL("http://christophergs.pythonanywhere.com/api/csv");
 
-        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection = (HttpURLConnection) url.openConnection();
 
-        File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath(),
-                "MBIENT.csv");
-            try {
-                InputStream in = new BufferedInputStream(urlConnection.getInputStream());
-                readStream(in);
-                Log.i(TAG, readStream(in));
-            } catch (Exception e) {
-                Log.e(TAG, "file send error", e);
+            FileInputStream fileInputStream = new FileInputStream(new File(pathToOurFile) );
+            //File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), "MBIENTMBIENT.csv");
+
+
+            urlConnection.setRequestMethod("POST");
+            urlConnection.setRequestProperty("Content-Type", "multipart/form-data;boundary="+boundary);
+            urlConnection.setRequestProperty("Content-Language", "en-US");
+            urlConnection.setUseCaches(false);
+            urlConnection.setDoInput(true);
+            urlConnection.setDoOutput(true);
+
+            outputStream = new DataOutputStream( urlConnection.getOutputStream() );
+            outputStream.writeBytes(twoHyphens + boundary + lineEnd);
+            outputStream.writeBytes("Content-Disposition: form-data; name=\"a_file\";filename=\"" + pathToOurFile + "\"" + lineEnd);
+            outputStream.writeBytes(lineEnd);
+
+            //Send request
+
+            bytesAvailable = fileInputStream.available();
+            bufferSize = Math.min(bytesAvailable, maxBufferSize);
+            buffer = new byte[bufferSize];
+
+            // Read file
+            bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+
+            while (bytesRead > 0)
+            {
+                outputStream.write(buffer, 0, bufferSize);
+                bytesAvailable = fileInputStream.available();
+                bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                bytesRead = fileInputStream.read(buffer, 0, bufferSize);
             }
-            finally {
-                    urlConnection.disconnect();
+
+            outputStream.writeBytes(lineEnd);
+            outputStream.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
+
+            // Responses from the server (code and message)
+
+            int responseCode = urlConnection.getResponseCode();
+            String responseText = urlConnection.getResponseMessage();
+            Log.i(TAG, responseText.toString());
+
+            fileInputStream.close();
+            outputStream.flush();
+            outputStream.close();
+
+        } catch (Exception e) {
+            Log.e(TAG, "file send error", e);
+        }
+        finally {
+            if(urlConnection != null) {
+                urlConnection.disconnect();
             }
-        } catch (Exception e){
-            Log.e(TAG, "url error", e);
         }
     }
 
