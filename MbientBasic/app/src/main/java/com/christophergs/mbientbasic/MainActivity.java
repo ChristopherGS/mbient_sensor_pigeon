@@ -1,12 +1,14 @@
 package com.christophergs.mbientbasic;
 
 import android.os.Environment;
+import android.os.Handler;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Switch;
 import android.bluetooth.BluetoothDevice;
@@ -37,7 +39,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+
 import android.text.format.Time;
+
 import java.io.FileWriter;
 
 
@@ -46,7 +50,9 @@ import static com.mbientlab.metawear.MetaWearBoard.ConnectionStateHandler;
 import com.mbientlab.metawear.Message;
 import com.mbientlab.metawear.MetaWearBleService;
 import com.mbientlab.metawear.MetaWearBoard;
+
 import static com.mbientlab.metawear.AsyncOperation.CompletionHandler;
+
 import com.mbientlab.metawear.AsyncOperation;
 import com.mbientlab.metawear.RouteManager;
 
@@ -56,22 +62,31 @@ import com.mbientlab.metawear.data.CartesianShort;
 import com.mbientlab.metawear.module.Accelerometer;
 import com.mbientlab.metawear.module.Led;
 import com.mbientlab.metawear.module.*;
+import com.mbientlab.metawear.DataSignal;
+
 
 import java.io.FileOutputStream;
+import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity implements ServiceConnection {
+
+    TextView accelerationData;
+
+    private Timer mTimer1;
+    private TimerTask mTt1;
+    private Handler mTimerHandler = new Handler();
 
     private MetaWearBleService.LocalBinder binder;
     private MetaWearBoard mwBoard;
     private final String MW_MAC_ADDRESS = "D5:9C:DC:37:BA:AE";
     private static final String TAG = "MBIENT_TAG";
     private Led ledModule;
-    private static final float ACC_RANGE = 8.f, ACC_FREQ= 50.f;
-    private static final String STREAM_KEY= "accel_stream";
-    private Accelerometer accelModule= null;
-    private static final String LOG_KEY= "FreeFallDetector";
+    private static final float ACC_RANGE = 8.f, ACC_FREQ = 50.f;
+    private static final String STREAM_KEY = "accel_stream";
+    private Accelerometer accelModule = null;
+    private static final String LOG_KEY = "FreeFallDetector";
 
-    private void toastIt( String msg ) {
+    private void toastIt(String msg) {
         Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
     }
 
@@ -86,13 +101,14 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
         // TEMPORARY HACK - should use async
         int SDK_INT = android.os.Build.VERSION.SDK_INT;
-        if (SDK_INT > 8)
-        {
+        if (SDK_INT > 8) {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
                     .permitAll().build();
             StrictMode.setThreadPolicy(policy);
 
         }
+        // matching accelerometer data to screen
+        accelerationData = (TextView) findViewById(R.id.accelerationData);
 
     }
 
@@ -154,7 +170,8 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     }
 
     @Override
-    public void onServiceDisconnected(ComponentName componentName) { }
+    public void onServiceDisconnected(ComponentName componentName) {
+    }
 
     public void startMbient(View view) {
         toastIt("trying to connect to mbient");
@@ -169,11 +186,11 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
     public void streamAccelerometer(View view) {
         toastIt("Stream accelerometer data");
-        final Switch mySwitch= (Switch) view;
-        final File fileDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+File.separator+"MBIENT");
+        final Switch mySwitch = (Switch) view;
+        final File fileDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "MBIENT");
 
-        if(!fileDir.exists()){
-            try{
+        if (!fileDir.exists()) {
+            try {
                 fileDir.mkdir();
             } catch (Exception e) {
                 Log.e(TAG, "file directory not foundr", e);
@@ -190,11 +207,13 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                 Log.i(TAG, "Log size: " + loggingModule.getLogCapacity());
 
                 accelModule.routeData()
-                    .fromAxes().stream(STREAM_KEY)
+                        .fromAxes().stream(STREAM_KEY)
                         .commit().onComplete(new CompletionHandler<RouteManager>() {
                     @Override
                     public void success(RouteManager result) {
                         result.subscribe(STREAM_KEY, new RouteManager.MessageHandler() {
+
+
                             @Override
                             public void process(Message message) {
                                 //final fileWriter = new FileWriter(FILENAME);
@@ -202,12 +221,16 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                                 //String FILENAME = "sensor_log.csv";
                                 CartesianFloat axes = message.getData(CartesianFloat.class);
                                 Log.i(TAG, axes.toString());
+
+                                //Displays acceleration data string to screen;
+                                accelerationData.setText("Acc (X,Y,Z): "+ axes);
+
                                 String entry = axes.toString();
-                                String path = fileDir+"MBIENT.csv";
+                                String path = fileDir + "MBIENT.csv";
                                 OutputStream out;
 
                                 try {
-                                    out = new BufferedOutputStream(new FileOutputStream(path,true));
+                                    out = new BufferedOutputStream(new FileOutputStream(path, true));
                                     out.write(entry.getBytes());
                                     out.close();
                                 } catch (Exception e) {
@@ -225,15 +248,16 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                                     Log.i(TAG, String.format("%tY%<tm%<td-%<tH%<tM%<tS%<tL: Entered Free Fall", message.getTimestamp()));
                                 }
                             });*/
-                        }
-                        @Override
-                        public void failure (Throwable error){
-                            Log.e(TAG, "Error committing route", error);
-                        }
-                    });
-                    accelModule.enableAxisSampling();
-                    loggingModule.startLogging(true);
-                    accelModule.start();
+                    }
+
+                    @Override
+                    public void failure(Throwable error) {
+                        Log.e(TAG, "Error committing route", error);
+                    }
+                });
+                accelModule.enableAxisSampling();
+                loggingModule.startLogging(true);
+                accelModule.start();
 
             } else {
                 loggingModule.stopLogging();
@@ -272,38 +296,38 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     }
 
 
-    public void sendFile(View view){
+    public void sendFile(View view) {
 
         toastIt("attempt to send file");
         HttpURLConnection urlConnection = null;
-        String boundary =  "*****";
+        String boundary = "*****";
         DataOutputStream outputStream = null;
         DataInputStream inputStream = null;
-        String pathToOurFile = Environment.getExternalStorageDirectory().getAbsolutePath()+"/MBIENTMBIENT.csv";
+        String pathToOurFile = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MBIENTMBIENT.csv";
         String lineEnd = "\r\n";
         String twoHyphens = "--";
 
         int bytesRead, bytesAvailable, bufferSize;
         byte[] buffer;
-        int maxBufferSize = 1*1024*1024;
+        int maxBufferSize = 1 * 1024 * 1024;
 
         try {
             URL url = new URL("http://christophergs.pythonanywhere.com/api/csv");
 
             urlConnection = (HttpURLConnection) url.openConnection();
 
-            FileInputStream fileInputStream = new FileInputStream(new File(pathToOurFile) );
+            FileInputStream fileInputStream = new FileInputStream(new File(pathToOurFile));
             //File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), "MBIENTMBIENT.csv");
 
 
             urlConnection.setRequestMethod("POST");
-            urlConnection.setRequestProperty("Content-Type", "multipart/form-data;boundary="+boundary);
+            urlConnection.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
             urlConnection.setRequestProperty("Content-Language", "en-US");
             urlConnection.setUseCaches(false);
             urlConnection.setDoInput(true);
             urlConnection.setDoOutput(true);
 
-            outputStream = new DataOutputStream( urlConnection.getOutputStream() );
+            outputStream = new DataOutputStream(urlConnection.getOutputStream());
             outputStream.writeBytes(twoHyphens + boundary + lineEnd);
             outputStream.writeBytes("Content-Disposition: form-data; name=\"a_file\";filename=\"" + pathToOurFile + "\"" + lineEnd);
             outputStream.writeBytes(lineEnd);
@@ -317,8 +341,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
             // Read file
             bytesRead = fileInputStream.read(buffer, 0, bufferSize);
 
-            while (bytesRead > 0)
-            {
+            while (bytesRead > 0) {
                 outputStream.write(buffer, 0, bufferSize);
                 bytesAvailable = fileInputStream.available();
                 bufferSize = Math.min(bytesAvailable, maxBufferSize);
@@ -340,9 +363,8 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
         } catch (Exception e) {
             Log.e(TAG, "file send error", e);
-        }
-        finally {
-            if(urlConnection != null) {
+        } finally {
+            if (urlConnection != null) {
                 urlConnection.disconnect();
             }
         }
@@ -350,7 +372,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
     public void turnOnLed() {
         try {
-            Led ledModule= mwBoard.getModule(Led.class);
+            Led ledModule = mwBoard.getModule(Led.class);
             ledModule.configureColorChannel(Led.ColorChannel.BLUE)
                     .setRiseTime((short) 0).setPulseDuration((short) 1000)
                     .setRepeatCount((byte) -1).setHighTime((short) 500)
@@ -359,7 +381,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
             ledModule.play(false);
         } catch (UnsupportedModuleException e) {
             toastIt("LED problem");
-        Log.e("MainActivity", "No Led on the board", e);
+            Log.e("MainActivity", "No Led on the board", e);
         }
     }
 
@@ -368,24 +390,10 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         //ledModule.stop(true); //CAUSES CRASH
     }
 
-    public void saveData(View view) {
-        Time now = new Time();
-        now.setToNow();
-        String sTime = now.format("%Y_%m_%d_%H_%M_%S");
-        String FILENAME = "sensor_log.csv";
-        //String entry = sTime + "," +
-                //acceleration_x.getText().toString() + "," +
-                //acceleration_y.getText().toString() + "," +
-                //acceleration_z.getText().toString() + ",\n";
-        try {
-            FileOutputStream out = openFileOutput( FILENAME, Context.MODE_APPEND );
-            //out.write( entry.getBytes() );
-            out.close();
-            toastIt("Data saved to csv");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+
+
+
+
 
 
 }

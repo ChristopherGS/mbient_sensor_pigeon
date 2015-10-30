@@ -46,15 +46,15 @@
                 android:layout_weight="1"
                 android:text="Record Data" />
 
+
         </LinearLayout>
 
         <TextView
-            android:id="@+id/mbientAccValues"
-            android:layout_width="match_parent"
+            android:id="@+id/accelerationData"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:paddingLeft="20dp"
-            android:text="Accerlator Data: X , Y , Z"
+            android:text="Acc (X,Y,Z): "
             android:textSize="20sp" />
 
         <Button
@@ -67,14 +67,15 @@
             android:text="Stop Record" />
 
         <Button
-            android:id="@+id/dataTransfer"
+            android:id="@+id/sendFile"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
             android:layout_gravity="center"
             android:layout_margin="20dp"
+            android:onClick="sendFile"
             android:padding="30dp"
-            android:text="Send CSV to Server" />
-
+            android:text="Send file to server" />
 
 
     </LinearLayout>
@@ -83,10 +84,10 @@
         android:id="@+id/led_off"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:onClick="ledOff"
         android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
         android:layout_marginBottom="50dp"
+        android:onClick="ledOff"
         android:text="Turn off LED" />
 
     <Button
@@ -96,16 +97,6 @@
         android:layout_alignParentBottom="true"
         android:onClick="stopMbient"
         android:text="Disconnect from sensor" />
-
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Send file to server"
-                android:gravity="center_vertical"
-                android:id="@+id/sendFile"
-                android:onClick="sendFile"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="10dp" />
 
 
 </RelativeLayout>
