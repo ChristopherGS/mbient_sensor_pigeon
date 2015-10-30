@@ -305,7 +305,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
             outputStream = new DataOutputStream( urlConnection.getOutputStream() );
             outputStream.writeBytes(twoHyphens + boundary + lineEnd);
-            outputStream.writeBytes("Content-Disposition: form-data; name=\"a_file\";filename=\"" + pathToOurFile + "\"" + lineEnd);
+            outputStream.writeBytes("Content-Disposition: form-data;name=\"a_file\";filename=\"" + pathToOurFile + "\"" + lineEnd);
             outputStream.writeBytes(lineEnd);
 
             //Send request
