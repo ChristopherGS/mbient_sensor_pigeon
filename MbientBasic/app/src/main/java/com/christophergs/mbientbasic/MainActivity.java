@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
             StrictMode.setThreadPolicy(policy);
 
         }
-        // matching accelerometer data to screen
+        // Matching accelerometer data to screen
         accelerationData = (TextView) findViewById(R.id.accelerationData);
 
     }
@@ -148,7 +148,17 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                         toastIt("Error");
                         Log.e(TAG, "Error reading device information", error);
                     }
+
+
                 });
+
+               // File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "MBIENT");
+                //if (file.exists()) {
+
+               //     boolean deleteFile (String, "MBIENTMBIENT");
+               //     toastIt("Old File Deleted");
+               //     Log.d(TAG, "Old File Deleted");
+                }
 
                 turnOnLed();
             }
@@ -197,7 +207,10 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
             }
         }
 
-        try {
+
+        try
+
+        {
             final Accelerometer accelModule = mwBoard.getModule(Accelerometer.class);
             final Logging loggingModule = mwBoard.getModule(Logging.class);
             if (mySwitch.isChecked()) {
@@ -221,7 +234,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                                 Log.i(TAG, axes.toString());
 
                                 //Displays acceleration data string to screen;
-                                accelerationData.setText("Acc (X,Y,Z): "+ axes);
+                                accelerationData.setText("Acc (X,Y,Z): " + axes);
 
                                 String entry = axes.toString();
                                 String path = fileDir + "MBIENT.csv";
@@ -273,13 +286,18 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                     }
                 });
             }
-        } catch (UnsupportedModuleException e) {
+        } catch (
+                UnsupportedModuleException e
+                )
+
+        {
             Toast.makeText(this, e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
         }
+
     }
 
 
-    public void sendFile(View view){
+    public void sendFile(View view) {
 
         toastIt("attempt to send file");
         HttpURLConnection urlConnection = null;
@@ -372,11 +390,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         Log.e(TAG, "Turn off LED");
         //ledModule.stop(true); //CAUSES CRASH
     }
-
-
-
-
-
 
 
 }
