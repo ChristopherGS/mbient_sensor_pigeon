@@ -197,9 +197,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                         result.subscribe(STREAM_KEY, new RouteManager.MessageHandler() {
                             @Override
                             public void process(Message message) {
-                                //final fileWriter = new FileWriter(FILENAME);
                                 FileWriter fileWriter = null;
-                                //String FILENAME = "sensor_log.csv";
                                 CartesianFloat axes = message.getData(CartesianFloat.class);
                                 Log.i(TAG, axes.toString());
                                 String entry = axes.toString();
@@ -209,6 +207,8 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                                 try {
                                     out = new BufferedOutputStream(new FileOutputStream(path,true));
                                     out.write(entry.getBytes());
+                                    out.write(",".getBytes());
+                                    out.write("\n".getBytes());
                                     out.close();
                                 } catch (Exception e) {
                                     Log.e(TAG, "CSV creation error", e);
@@ -253,24 +253,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
             Toast.makeText(this, e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
         }
     }
-
-    public static String readStream(InputStream in) {
-        StringBuilder sb = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(in));) {
-
-            String nextLine = "";
-            while ((nextLine = reader.readLine()) != null) {
-                sb.append(nextLine);
-                //if (!reader.ready()) {
-                //    break;
-                //}
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return sb.toString();
-    }
-
 
     public void sendFile(View view){
 
