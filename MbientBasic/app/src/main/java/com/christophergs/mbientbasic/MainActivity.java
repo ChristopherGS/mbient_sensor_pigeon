@@ -152,13 +152,13 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
                 });
 
-               // File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "MBIENT");
+               // File file = new File(/storage/emulated);
                 //if (file.exists()) {
 
                //     boolean deleteFile (String, "MBIENTMBIENT");
                //     toastIt("Old File Deleted");
                //     Log.d(TAG, "Old File Deleted");
-                }
+                //}
 
                 turnOnLed();
             }
