@@ -60,6 +60,8 @@ import com.mbientlab.metawear.UnsupportedModuleException;
 import com.mbientlab.metawear.data.CartesianFloat;
 import com.mbientlab.metawear.data.CartesianShort;
 import com.mbientlab.metawear.module.Accelerometer;
+import com.mbientlab.metawear.module.Bmi160Gyro;
+import com.mbientlab.metawear.module.Bmi160Gyro.*;
 import com.mbientlab.metawear.module.Led;
 import com.mbientlab.metawear.module.*;
 import com.mbientlab.metawear.DataSignal;
@@ -71,6 +73,7 @@ import java.util.TimerTask;
 public class MainActivity extends AppCompatActivity implements ServiceConnection {
 
     TextView accelerationData;
+    TextView gyroData;
 
     private Timer mTimer1;
     private TimerTask mTt1;
@@ -81,9 +84,10 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     private final String MW_MAC_ADDRESS = "D5:9C:DC:37:BA:AE";
     private static final String TAG = "MBIENT_TAG";
     private Led ledModule;
-    private static final float ACC_RANGE = 8.f, ACC_FREQ = 50.f;
+    private static final float ACC_RANGE = 8.f, ACC_FREQ = 75.f;
     private static final String STREAM_KEY = "accel_stream";
     private Accelerometer accelModule = null;
+    private Bmi160Gyro bmi160GyroModule = null;
     private static final String LOG_KEY = "FreeFallDetector";
 
     private void toastIt(String msg) {
@@ -109,6 +113,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         }
         // Matching accelerometer data to screen
         accelerationData = (TextView) findViewById(R.id.accelerationData);
+        gyroData = (TextView) findViewById(R.id.gyroData);
 
     }
 
@@ -152,12 +157,12 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
                 });
 
-               // File file = new File(/storage/emulated);
+                // File file = new File(/storage/emulated);
                 //if (file.exists()) {
 
-               //     boolean deleteFile (String, "MBIENTMBIENT");
-               //     toastIt("Old File Deleted");
-               //     Log.d(TAG, "Old File Deleted");
+                //     boolean deleteFile (String, "MBIENTMBIENT");
+                //     toastIt("Old File Deleted");
+                //     Log.d(TAG, "Old File Deleted");
                 //}
 
                 turnOnLed();
@@ -193,6 +198,34 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         mwBoard.disconnect();
     }
 
+    public void streamGyro(View view) {
+        toastIt("Stream gryo data");
+        try {
+            final Bmi160Gyro bmi160GyroModule = mwBoard.getModule(Bmi160Gyro.class);
+            bmi160GyroModule.configure()
+                    .setFullScaleRange(FullScaleRange.FSR_2000)
+                    .setOutputDataRate(OutputDataRate.ODR_100_HZ)
+                    .commit();
+
+            bmi160GyroModule.routeData().fromAxes().stream("gyro_stream").commit()
+                    .onComplete(new CompletionHandler<RouteManager>() {
+                        @Override
+                        public void success(RouteManager result) {
+                            result.subscribe("gyro_stream", new RouteManager.MessageHandler() {
+                                @Override
+                                public void process(Message msg) {
+                                    final CartesianFloat spinData = msg.getData(CartesianFloat.class);
+                                    Log.i(TAG, spinData.toString());
+                                }
+                            });
+                            bmi160GyroModule.start();
+                        }
+                    });
+        } catch (UnsupportedModuleException e) {
+            Log.e(TAG, "gryo error", e);
+        }
+    }
+
 
     public void streamAccelerometer(View view) {
         toastIt("Stream accelerometer data");
@@ -214,7 +247,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
             final Accelerometer accelModule = mwBoard.getModule(Accelerometer.class);
             final Logging loggingModule = mwBoard.getModule(Logging.class);
             if (mySwitch.isChecked()) {
-                accelModule.setOutputDataRate(50.f);
+                accelModule.setOutputDataRate(ACC_FREQ);
                 accelModule.setAxisSamplingRange(ACC_RANGE);
 
                 Log.i(TAG, "Log size: " + loggingModule.getLogCapacity());

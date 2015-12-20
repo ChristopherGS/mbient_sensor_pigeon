@@ -38,6 +38,16 @@
                 android:paddingLeft="20dp"
                 android:text="Accelerometer" />
 
+            <Switch
+                android:id="@+id/switchGryo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:checked="false"
+                android:onClick="streamGyro"
+                android:paddingLeft="20dp"
+                android:text="Gyroscope" />
+
 
             <Button
                 android:id="@+id/mbientStartRec"
@@ -55,6 +65,14 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:text="Acc (X,Y,Z): "
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/gyroData"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="Gryo (X,Y,Z): "
             android:textSize="20sp" />
 
         <Button
