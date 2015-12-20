@@ -65,6 +65,7 @@ import com.mbientlab.metawear.module.Bmi160Gyro.*;
 import com.mbientlab.metawear.module.Led;
 import com.mbientlab.metawear.module.*;
 import com.mbientlab.metawear.DataSignal;
+import com.mbientlab.metawear.module.Logging;
 
 
 import java.io.FileOutputStream;
@@ -199,30 +200,76 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     }
 
     public void streamGyro(View view) {
-        toastIt("Stream gryo data");
+        final Switch gyroSwitch = (Switch) view;
+        final File fileDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "MBIENT");
+
+
+        if (!fileDir.exists()) {
+            try {
+                fileDir.mkdir();
+            } catch (Exception e) {
+                Log.e(TAG, "file directory not foundr", e);
+            }
+        }
+
         try {
             final Bmi160Gyro bmi160GyroModule = mwBoard.getModule(Bmi160Gyro.class);
-            bmi160GyroModule.configure()
-                    .setFullScaleRange(FullScaleRange.FSR_2000)
-                    .setOutputDataRate(OutputDataRate.ODR_100_HZ)
-                    .commit();
+            final Logging logModule= mwBoard.getModule(Logging.class);
+            final long startTime = System.nanoTime();
+            if (gyroSwitch.isChecked()) {
+                toastIt("Streaming gryo data");
+                try {
+                    bmi160GyroModule.configure()
+                            .setFullScaleRange(FullScaleRange.FSR_2000)
+                            .setOutputDataRate(OutputDataRate.ODR_100_HZ)
+                            .commit();
 
-            bmi160GyroModule.routeData().fromAxes().stream("gyro_stream").commit()
-                    .onComplete(new CompletionHandler<RouteManager>() {
-                        @Override
-                        public void success(RouteManager result) {
-                            result.subscribe("gyro_stream", new RouteManager.MessageHandler() {
+                    bmi160GyroModule.routeData().fromAxes().stream("gyro_stream").log("gyroLogger").commit()
+                            .onComplete(new CompletionHandler<RouteManager>() {
                                 @Override
-                                public void process(Message msg) {
-                                    final CartesianFloat spinData = msg.getData(CartesianFloat.class);
-                                    Log.i(TAG, spinData.toString());
+                                public void success(RouteManager result) {
+                                    result.subscribe("gyro_stream", new RouteManager.MessageHandler() {
+                                        @Override
+                                        public void process(Message msg) {
+                                            final CartesianFloat spinData = msg.getData(CartesianFloat.class);
+                                            //Log.i(TAG, spinData.toString());
+                                            //Displays acceleration data string to screen;
+                                            gyroData.setText("Gyro (X,Y,Z): " + spinData);
+                                        }
+                                    });
+                                    result.setLogMessageHandler("gyroLogger", new RouteManager.MessageHandler() {
+                                        @Override
+                                        public void process(Message msg) {
+                                            final long estimatedTime = System.nanoTime() - startTime;
+                                            final CartesianShort spinData = msg.getData(CartesianShort.class);
+                                            Log.i(TAG, String.format("Log: %s, %d", spinData.toString(), estimatedTime));
+                                        }
+                                    });
+                                    logModule.startLogging(true);
+                                    bmi160GyroModule.start();
                                 }
                             });
-                            bmi160GyroModule.start();
+                } catch (Exception e) {
+                    Log.e(TAG, "gryo error", e);
+                }
+            } else {
+                try {
+                    bmi160GyroModule.stop();
+                    toastIt("Stopped streaming gryo data");
+                    logModule.stopLogging();
+                    Log.i(TAG, "capacity is:" + logModule.getLogCapacity());
+                    logModule.downloadLog(0.05f, new Logging.DownloadHandler() {
+                        @Override
+                        public void onProgressUpdate(int nEntriesLeft, int totalEntries) {
+                            Log.i(TAG, String.format("Progress= %d / %d", nEntriesLeft, totalEntries));
                         }
                     });
+                } catch (Exception e) {
+                    Log.e(TAG, "gyro error", e);
+                }
+            }
         } catch (UnsupportedModuleException e) {
-            Log.e(TAG, "gryo error", e);
+            Log.e(TAG, "gyro error", e);
         }
     }
 
