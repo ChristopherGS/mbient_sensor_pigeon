@@ -199,10 +199,142 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         mwBoard.disconnect();
     }
 
+    public void streamBoth(View view) {
+        final Switch bothSwitch = (Switch) view;
+
+        try {
+            final Bmi160Gyro bmi160GyroModule = mwBoard.getModule(Bmi160Gyro.class);
+            final Accelerometer accelModule = mwBoard.getModule(Accelerometer.class);
+            final Logging logModule= mwBoard.getModule(Logging.class);
+            final long startTime = System.nanoTime();
+            final File fileDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "MBIENT");
+
+            //erase logs
+            //The erase operation will not be performed until you disconnect from the board
+            logModule.clearEntries();
+
+            if (!fileDir.exists()) {
+                try {
+                    fileDir.mkdir();
+                } catch (Exception e) {
+                    Log.e(TAG, "file directory not foundr", e);
+                }
+            }
+
+            if (bothSwitch.isChecked()) {
+                //settings
+                bmi160GyroModule.configure()
+                        .setFullScaleRange(FullScaleRange.FSR_2000)
+                        .setOutputDataRate(OutputDataRate.ODR_100_HZ)
+                        .commit();
+
+                accelModule.setOutputDataRate(ACC_FREQ);
+                accelModule.setAxisSamplingRange(ACC_RANGE);
+
+                bmi160GyroModule.routeData().fromAxes().stream("gyro_stream").log("bothLogger").commit()
+                        .onComplete(new CompletionHandler<RouteManager>() {
+                            @Override
+                            public void success(RouteManager result) {
+                                result.subscribe("gyro_stream", new RouteManager.MessageHandler() {
+                                    @Override
+                                    public void process(Message msg) {
+                                        final CartesianFloat spinData = msg.getData(CartesianFloat.class);
+                                        //Log.i(TAG, spinData.toString());
+                                        //Displays acceleration data string to screen;
+                                        gyroData.setText("Gyro (X,Y,Z): " + spinData);
+                                    }
+                                });
+                                result.setLogMessageHandler("bothLogger", new RouteManager.MessageHandler() {
+                                    @Override
+                                    public void process(Message msg) {
+                                        final long estimatedTime = System.nanoTime() - startTime;
+                                        final CartesianShort spinData = msg.getData(CartesianShort.class);
+                                        Log.i(TAG, String.format("G_Log: %s, %d, %tY%<tm%<td-%<tH%<tM%<tS%<tL", spinData.toString(), estimatedTime, msg.getTimestamp()));
+                                    }
+                                });
+                            }
+                        });
+
+                accelModule.routeData()
+                        .fromAxes().stream(STREAM_KEY).log("accelLogger").commit()
+                        .onComplete(new CompletionHandler<RouteManager>() {
+                            @Override
+                            public void success(RouteManager result) {
+                                result.subscribe(STREAM_KEY, new RouteManager.MessageHandler() {
+
+                                    @Override
+                                    public void process(Message message) {
+                                        FileWriter fileWriter = null;
+                                        CartesianFloat axes = message.getData(CartesianFloat.class);
+                                        Log.i(TAG, axes.toString());
+
+                                        //Displays acceleration data string to screen;
+                                        accelerationData.setText("Acc (X,Y,Z): " + axes);
+
+                                        String entry = axes.toString();
+                                        String path = fileDir + "MBIENT.csv";
+                                        OutputStream out;
+
+                                        try {
+                                            out = new BufferedOutputStream(new FileOutputStream(path, true));
+                                            out.write(entry.getBytes());
+                                            out.write(",".getBytes());
+                                            out.write("\n".getBytes());
+                                            out.close();
+                                        } catch (Exception e) {
+                                            Log.e(TAG, "CSV creation error", e);
+
+
+                                        }
+                                    }
+
+                                });
+                                result.setLogMessageHandler("accelLogger", new RouteManager.MessageHandler() {
+                                    @Override
+                                    public void process(Message msg) {
+                                        final long estimatedTime = System.nanoTime() - startTime;
+                                        final CartesianFloat axes = msg.getData(CartesianFloat.class);
+                                        Log.i(TAG, String.format("A_Log: %s, %d, %tY%<tm%<td-%<tH%<tM%<tS%<tL", axes.toString(), estimatedTime, msg.getTimestamp()));
+                                    }
+                                });
+                            }
+
+                            @Override
+                            public void failure(Throwable error) {
+                                Log.e(TAG, "Error committing route", error);
+                            }
+                        });
+                accelModule.enableAxisSampling();
+                logModule.startLogging(true);
+                accelModule.start();
+                bmi160GyroModule.start();
+
+            } else {
+                logModule.stopLogging();
+                accelModule.disableAxisSampling();
+                accelModule.stop();
+                bmi160GyroModule.stop();
+
+                logModule.downloadLog(0.f, new Logging.DownloadHandler() {
+                    @Override
+                    public void onProgressUpdate(int nEntriesLeft, int totalEntries) {
+                        if (nEntriesLeft == 0) {
+                            Log.i(TAG, "Log download complete");
+                        }
+                    }
+                });
+            }
+        } catch (UnsupportedModuleException e) {
+            Toast.makeText(this, e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    //=================================================================================================
+    //=================================================================================================
+
     public void streamGyro(View view) {
         final Switch gyroSwitch = (Switch) view;
         final File fileDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "MBIENT");
-
 
         if (!fileDir.exists()) {
             try {
@@ -242,7 +374,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                                         public void process(Message msg) {
                                             final long estimatedTime = System.nanoTime() - startTime;
                                             final CartesianShort spinData = msg.getData(CartesianShort.class);
-                                            Log.i(TAG, String.format("Log: %s, %d", spinData.toString(), estimatedTime));
+                                            Log.i(TAG, String.format("Log: %s, %d, %tY%<tm%<td-%<tH%<tM%<tS%<tL", spinData.toString(), estimatedTime, msg.getTimestamp()));
                                         }
                                     });
                                     logModule.startLogging(true);
@@ -288,24 +420,22 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         }
 
 
-        try
-
-        {
+        try {
             final Accelerometer accelModule = mwBoard.getModule(Accelerometer.class);
-            final Logging loggingModule = mwBoard.getModule(Logging.class);
+            final Logging logModule= mwBoard.getModule(Logging.class);
+            final long startTime = System.nanoTime();
             if (mySwitch.isChecked()) {
                 accelModule.setOutputDataRate(ACC_FREQ);
                 accelModule.setAxisSamplingRange(ACC_RANGE);
 
-                Log.i(TAG, "Log size: " + loggingModule.getLogCapacity());
+                Log.i(TAG, "Log size: " + logModule.getLogCapacity());
 
                 accelModule.routeData()
-                        .fromAxes().stream(STREAM_KEY)
-                        .commit().onComplete(new CompletionHandler<RouteManager>() {
+                        .fromAxes().stream(STREAM_KEY).log("accelLogger").commit()
+                        .onComplete(new CompletionHandler<RouteManager>() {
                     @Override
                     public void success(RouteManager result) {
                         result.subscribe(STREAM_KEY, new RouteManager.MessageHandler() {
-
 
                             @Override
                             public void process(Message message) {
@@ -334,13 +464,14 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                             }
 
                         });
-                            /*
-                            result.setLogMessageHandler(LOG_KEY, new RouteManager.MessageHandler() {
-                                @Override
-                                public void process(Message message) {
-                                    Log.i(TAG, String.format("%tY%<tm%<td-%<tH%<tM%<tS%<tL: Entered Free Fall", message.getTimestamp()));
-                                }
-                            });*/
+                        result.setLogMessageHandler("accelLogger", new RouteManager.MessageHandler() {
+                            @Override
+                            public void process(Message msg) {
+                                final long estimatedTime = System.nanoTime() - startTime;
+                                final CartesianFloat axes = msg.getData(CartesianFloat.class);
+                                Log.i(TAG, String.format("Log: %s, %d, %tY%<tm%<td-%<tH%<tM%<tS%<tL", axes.toString(), estimatedTime, msg.getTimestamp()));
+                            }
+                        });
                     }
 
                     @Override
@@ -349,15 +480,15 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                     }
                 });
                 accelModule.enableAxisSampling();
-                loggingModule.startLogging(true);
+                logModule.startLogging(true);
                 accelModule.start();
 
             } else {
-                loggingModule.stopLogging();
+                logModule.stopLogging();
                 accelModule.disableAxisSampling();
                 accelModule.stop();
 
-                loggingModule.downloadLog(0.f, new Logging.DownloadHandler() {
+                logModule.downloadLog(0.f, new Logging.DownloadHandler() {
                     @Override
                     public void onProgressUpdate(int nEntriesLeft, int totalEntries) {
                         if (nEntriesLeft == 0) {
