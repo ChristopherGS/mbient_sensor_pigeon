@@ -57,9 +57,10 @@ public class RecordActivity extends AppCompatActivity implements ServiceConnecti
     private Accelerometer accelModule;
     private Debug debugModule;
     private Logging loggingModule;
-    private static final float ACC_RANGE = 8.f, ACC_FREQ = 50.f;
+    private static final float ACC_RANGE = 8.f, ACC_FREQ = 25.f;
     private static final String LOG_KEY = "accel_log";
     private static final String GYRO_LOG_KEY = "gyro_log";
+    private static final String BOTH_LOG_KEY = "both_log";
     private static final String TAG = "MBIENT_TAG";
 
     @Override
@@ -182,8 +183,10 @@ public class RecordActivity extends AppCompatActivity implements ServiceConnecti
                             });
                         }
                     });
-                    Log.i(TAG, "Start Recording Gyroscope");
+                    Log.i(TAG, "Start Recording BOTH");
+                    loggingModule.startLogging();
                     bmi160GyroModule.start();
+
                 }
             });
             Button gyroStopBtn = (Button) findViewById(R.id.stop_gyro_real);
@@ -192,6 +195,73 @@ public class RecordActivity extends AppCompatActivity implements ServiceConnecti
                 public void onClick(View v) {
                     Log.i(TAG, "Stop Recording Gyroscope");
                     bmi160GyroModule.stop();
+                    loggingModule.stopLogging();
+                    loggingModule.downloadLog(0.05f, new Logging.DownloadHandler() {
+                        @Override
+                        public void onProgressUpdate(int nEntriesLeft, int totalEntries) {
+                            Log.i(TAG, String.format("Progress= %d / %d", nEntriesLeft, totalEntries));
+                        }
+                    });
+                    Log.i(TAG, "log download complete");
+                }
+            });
+            Button bothStartBtn = (Button) findViewById(R.id.start_both_real);
+            bothStartBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    accelModule.setOutputDataRate(25.f);
+                    accelModule.setAxisSamplingRange(ACC_RANGE);
+                    bmi160GyroModule.configure()
+                            .setFullScaleRange(FullScaleRange.FSR_2000)
+                            .setOutputDataRate(OutputDataRate.ODR_25_HZ)
+                            .commit();
+                    AsyncOperation<RouteManager> routeManagerResult = accelModule.routeData().fromAxes().log(GYRO_LOG_KEY).commit();
+                    AsyncOperation<RouteManager> routeManagerResult2 = bmi160GyroModule.routeData().fromAxes().log(LOG_KEY).commit();
+                    routeManagerResult.onComplete(new AsyncOperation.CompletionHandler<RouteManager>() {
+                        @Override
+                        public void success(RouteManager result) {
+                            final long startTime_gyro = System.nanoTime();
+                            Log.i(TAG, "GYRO");
+                            result.setLogMessageHandler(GYRO_LOG_KEY, new RouteManager.MessageHandler() {
+                                @Override
+                                public void process(Message msg) {
+                                    final long estimatedTime_gyro = System.nanoTime() - startTime_gyro;
+                                    final CartesianFloat spinData = msg.getData(CartesianFloat.class);
+                                    Log.i(TAG, String.format("Gyro_Log: %s, %d, %tY%<tm%<td-%<tH%<tM%<tS%<tL", spinData.toString(), estimatedTime_gyro, msg.getTimestamp()));
+                                }
+                            });
+                        }
+                    });
+                    routeManagerResult2.onComplete(new AsyncOperation.CompletionHandler<RouteManager>() {
+                        @Override
+                        public void success(RouteManager result) {
+                            final long startTime = System.nanoTime();
+                            Log.i(TAG, "ACCEL");
+                            result.setLogMessageHandler(LOG_KEY, new RouteManager.MessageHandler() {
+                                @Override
+                                public void process(Message msg) {
+                                    final long estimatedTime = System.nanoTime() - startTime;
+                                    final CartesianFloat axes = msg.getData(CartesianFloat.class);
+                                    Log.i(TAG, String.format("Accel_Log: %s, %d, %tY%<tm%<td-%<tH%<tM%<tS%<tL", axes.toString(), estimatedTime, msg.getTimestamp()));
+                                }
+                            });
+                        }
+                    });
+                    Log.i(TAG, "Start Recording BOTH");
+                    loggingModule.startLogging();
+                    accelModule.enableAxisSampling();
+                    bmi160GyroModule.start();
+                    accelModule.start();
+                    }
+                });
+            Button bothStopBtn = (Button) findViewById(R.id.stop_both_real);
+            bothStopBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.i(TAG, "Stop Recording Both");
+                    bmi160GyroModule.stop();
+                    accelModule.stop();
+                    accelModule.disableAxisSampling();
                     loggingModule.stopLogging();
                     loggingModule.downloadLog(0.05f, new Logging.DownloadHandler() {
                         @Override
