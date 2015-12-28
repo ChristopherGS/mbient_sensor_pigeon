@@ -67,11 +67,11 @@
 
 
             <Button
-                android:id="@+id/mbientStartRec"
+                android:id="@+id/reset_board_real"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Record Data" />
+                android:text="Reset Board" />
 
         </LinearLayout>
 
@@ -92,13 +92,31 @@
             android:textSize="20sp" />
 
         <Button
-            android:id="@+id/mbientStopRec"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_margin="20dp"
-            android:padding="20dp"
-            android:text="Stop Record" />
+            android:text="Start Accel"
+            android:id="@+id/start_accel_real" />
+
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="START GYRO"
+            android:id="@+id/start_gyro_real"
+            android:layout_gravity="right" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Stop Accel"
+            android:id="@+id/stop_accel_real" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Stop Gyro"
+            android:id="@+id/stop_gyro_real"
+            android:layout_gravity="right" />
 
         <Button
             android:id="@+id/sendFile"
@@ -113,16 +131,6 @@
 
 
     </LinearLayout>
-
-    <Button
-        android:id="@+id/led_off"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="50dp"
-        android:onClick="ledOff"
-        android:text="Turn off LED" />
 
     <Button
         android:id="@+id/mbientDisconnect"
