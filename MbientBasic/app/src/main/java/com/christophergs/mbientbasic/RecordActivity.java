@@ -18,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Switch;
@@ -106,7 +107,13 @@ public class RecordActivity extends AppCompatActivity implements ServiceConnecti
     private static final String LOG_KEY = "accel_log";
     private static final String GYRO_LOG_KEY = "gyro_log";
     private static final String BOTH_LOG_KEY = "both_log";
+    private static final String ACCEL_STREAM_KEY = "accel_stream";
+    private static final String GYRO_STREAM_KEY = "gyro_stream";
     private static final String TAG = "MBIENT_TAG";
+
+    private void toastIt(String msg) {
+        Toast.makeText(RecordActivity.this, msg, Toast.LENGTH_SHORT).show();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,6 +121,8 @@ public class RecordActivity extends AppCompatActivity implements ServiceConnecti
         setContentView(R.layout.activity_record);
         btDevice= getIntent().getParcelableExtra(EXTRA_BT_DEVICE);
         getApplicationContext().bindService(new Intent(this, MetaWearBleService.class), this, BIND_AUTO_CREATE);
+        accelerationData = (TextView) findViewById(R.id.accelerationData);
+        gyroData = (TextView) findViewById(R.id.gyroData);
         Log.i(TAG, "Initialize");
     }
 
@@ -135,22 +144,20 @@ public class RecordActivity extends AppCompatActivity implements ServiceConnecti
 
     @Override
     public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-        mwBoard= ((MetaWearBleService.LocalBinder) iBinder).getMetaWearBoard(btDevice);
+        mwBoard = ((MetaWearBleService.LocalBinder) iBinder).getMetaWearBoard(btDevice);
         mwBoard.setConnectionStateHandler(stateHandler);
         Log.i(TAG, String.valueOf(mwBoard.readDeviceInformation()));
-
 
 
         try {
             final Accelerometer accelModule = mwBoard.getModule(Accelerometer.class);
             final Logging loggingModule = mwBoard.getModule(Logging.class);
-            final Bmi160Gyro bmi160GyroModule= mwBoard.getModule(Bmi160Gyro.class);
+            final Bmi160Gyro bmi160GyroModule = mwBoard.getModule(Bmi160Gyro.class);
             final Debug debugger = mwBoard.getModule(Debug.class);
 
 
-
-            Button btn2 = (Button) findViewById(R.id.start_accel_real);
-            btn2.setOnClickListener(new View.OnClickListener() {
+            Button accelStartBtn = (Button) findViewById(R.id.start_accel_real);
+            accelStartBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Log.i(TAG, "START ACCELEROMETER");
@@ -180,8 +187,8 @@ public class RecordActivity extends AppCompatActivity implements ServiceConnecti
                     accelModule.start();
                 }
             });
-            Button btn3 = (Button) findViewById(R.id.stop_accel_real);
-            btn3.setOnClickListener(new View.OnClickListener() {
+            Button accelStopBtn = (Button) findViewById(R.id.stop_accel_real);
+            accelStopBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Log.i(TAG, "Stop Recording Accelerometer");
@@ -215,7 +222,7 @@ public class RecordActivity extends AppCompatActivity implements ServiceConnecti
                             .setFullScaleRange(FullScaleRange.FSR_2000)
                             .setOutputDataRate(OutputDataRate.ODR_50_HZ)
                             .commit();
-                    AsyncOperation<RouteManager> routeManagerResult = accelModule.routeData().fromAxes().log(GYRO_LOG_KEY).commit();
+                    AsyncOperation<RouteManager> routeManagerResult = bmi160GyroModule.routeData().fromAxes().log(GYRO_LOG_KEY).commit();
                     routeManagerResult.onComplete(new AsyncOperation.CompletionHandler<RouteManager>() {
                         @Override
                         public void success(RouteManager result) {
@@ -231,7 +238,7 @@ public class RecordActivity extends AppCompatActivity implements ServiceConnecti
                             });
                         }
                     });
-                    Log.i(TAG, "Start Recording BOTH");
+                    Log.i(TAG, "Start Recording Gyro");
                     loggingModule.startLogging();
                     bmi160GyroModule.start();
 
@@ -283,7 +290,7 @@ public class RecordActivity extends AppCompatActivity implements ServiceConnecti
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    accelModule.setOutputDataRate(25.f);
+                    accelModule.setOutputDataRate(ACC_FREQ);
                     accelModule.setAxisSamplingRange(ACC_RANGE);
                     bmi160GyroModule.configure()
                             .setFullScaleRange(FullScaleRange.FSR_2000)
@@ -348,12 +355,12 @@ public class RecordActivity extends AppCompatActivity implements ServiceConnecti
                     });
                     Log.i(TAG, "Start Recording BOTH");
                     Log.i(TAG, String.valueOf(loggingModule.getLogCapacity()));
-                        loggingModule.startLogging(true);
+                    loggingModule.startLogging(true);
                     accelModule.enableAxisSampling();
                     bmi160GyroModule.start();
                     accelModule.start();
-                    }
-                });
+                }
+            });
             Button bothStopBtn = (Button) findViewById(R.id.stop_both_real);
             bothStopBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -374,10 +381,88 @@ public class RecordActivity extends AppCompatActivity implements ServiceConnecti
                 }
             });
 
-        } catch (UnsupportedModuleException e) {
-            Log.e(TAG, "unsupported module", e);
-        }
+            Switch accelStreamBtn = (Switch) findViewById(R.id.switchAccel);
+            accelStreamBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    Log.v("Switch State=", "" + isChecked);
+                    toastIt("Stream accelerometer data");
+                    if (isChecked) {
+                        accelModule.setOutputDataRate(ACC_FREQ);
+                        accelModule.setAxisSamplingRange(ACC_RANGE);
 
+                        accelModule.routeData()
+                                .fromAxes().stream(ACCEL_STREAM_KEY)
+                                .commit().onComplete(new CompletionHandler<RouteManager>() {
+                            @Override
+                            public void success(RouteManager result) {
+                                result.subscribe(ACCEL_STREAM_KEY, new RouteManager.MessageHandler() {
+                                    @Override
+                                    public void process(Message message) {
+                                        CartesianFloat axes = message.getData(CartesianFloat.class);
+                                        Log.i(TAG, axes.toString());
+                                        //Displays acceleration data string to screen;
+                                        accelerationData.setText("Acc (X,Y,Z): " + axes);
+                                    }
+
+                                });
+                            }
+
+                            @Override
+                            public void failure(Throwable error) {
+                                Log.e(TAG, "Error committing route", error);
+                            }
+                        });
+                        accelModule.enableAxisSampling();
+                        accelModule.start();
+                    } else {
+                        accelModule.disableAxisSampling();
+                        accelModule.stop();
+                    }
+                }
+            });
+
+            Switch gyroStreamBtn = (Switch) findViewById(R.id.switchGyro);
+            gyroStreamBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    Log.v("Switch State=", "" + isChecked);
+                    toastIt("Stream gyroscope data");
+                    if (isChecked) {
+                        bmi160GyroModule.configure()
+                                .setFullScaleRange(FullScaleRange.FSR_2000)
+                                .setOutputDataRate(OutputDataRate.ODR_25_HZ)
+                                .commit();
+
+                        bmi160GyroModule.routeData()
+                                .fromAxes().stream(GYRO_STREAM_KEY)
+                                .commit().onComplete(new CompletionHandler<RouteManager>() {
+                            @Override
+                            public void success(RouteManager result) {
+                                result.subscribe(GYRO_STREAM_KEY, new RouteManager.MessageHandler() {
+                                    @Override
+                                    public void process(Message message) {
+                                        final CartesianFloat spinData = message.getData(CartesianFloat.class);
+                                        Log.i(TAG, spinData.toString());
+                                        //Displays acceleration data string to screen;
+                                        gyroData.setText("Acc (X,Y,Z): " + spinData);
+                                    }
+
+                                });
+                            }
+                            @Override
+                            public void failure(Throwable error) {
+                                Log.e(TAG, "Error committing route", error);
+                            }
+                        });
+                        bmi160GyroModule.start();
+                    } else {
+                        bmi160GyroModule.stop();
+                    }
+                }
+            });
+
+        } catch(UnsupportedModuleException e){
+            Log.e(TAG, "module error", e);
+        }
     }
 
     public void stopMbient(View view){
@@ -389,31 +474,81 @@ public class RecordActivity extends AppCompatActivity implements ServiceConnecti
     public void onServiceDisconnected(ComponentName name) {
 
     }
-    /*
-    @Override
-    protected String saveData() {
-        final String CSV_HEADER = String.format("time,x-%s,y-%s,z-%s%n", dataType, dataType, dataType);
-        String filename = String.format("%s_%tY%<tm%<td-%<tH%<tM%<tS%<tL.csv", sensor, Calendar.getInstance());
+
+
+
+    public void sendFile(View view) {
+
+        toastIt("attempt to send file");
+        HttpURLConnection urlConnection = null;
+        String boundary = "*****";
+        DataOutputStream outputStream = null;
+        DataInputStream inputStream = null;
+        String pathToOurFile = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MBIENTMBIENT.csv";
+        String lineEnd = "\r\n";
+        String twoHyphens = "--";
+
+        int bytesRead, bytesAvailable, bufferSize;
+        byte[] buffer;
+        int maxBufferSize = 1 * 1024 * 1024;
 
         try {
-            FileOutputStream fos = getActivity().openFileOutput(filename, Context.MODE_PRIVATE);
-            fos.write(CSV_HEADER.getBytes());
+            URL url = new URL("http://christophergs.pythonanywhere.com/api/csv");
 
-            LineData data = chart.getLineData();
-            LineDataSet xSpinDataSet = data.getDataSetByIndex(0), ySpinDataSet = data.getDataSetByIndex(1),
-                    zSpinDataSet = data.getDataSetByIndex(2);
-            for (int i = 0; i < data.getXValCount(); i++) {
-                fos.write(String.format("%.3f,%.3f,%.3f,%.3f%n", i * samplePeriod,
-                        xSpinDataSet.getEntryForXIndex(i).getVal(),
-                        ySpinDataSet.getEntryForXIndex(i).getVal(),
-                        zSpinDataSet.getEntryForXIndex(i).getVal()).getBytes());
+            urlConnection = (HttpURLConnection) url.openConnection();
+
+            FileInputStream fileInputStream = new FileInputStream(new File(pathToOurFile));
+            //File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), "MBIENTMBIENT.csv");
+
+
+            urlConnection.setRequestMethod("POST");
+            urlConnection.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
+            urlConnection.setRequestProperty("Content-Language", "en-US");
+            urlConnection.setUseCaches(false);
+            urlConnection.setDoInput(true);
+            urlConnection.setDoOutput(true);
+
+            outputStream = new DataOutputStream(urlConnection.getOutputStream());
+            outputStream.writeBytes(twoHyphens + boundary + lineEnd);
+            outputStream.writeBytes("Content-Disposition: form-data;name=\"android_file\";filename=\"" + pathToOurFile + "\"" + lineEnd);
+            outputStream.writeBytes(lineEnd);
+
+            //Send request
+
+            bytesAvailable = fileInputStream.available();
+            bufferSize = Math.min(bytesAvailable, maxBufferSize);
+            buffer = new byte[bufferSize];
+
+            // Read file
+            bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+
+            while (bytesRead > 0) {
+                outputStream.write(buffer, 0, bufferSize);
+                bytesAvailable = fileInputStream.available();
+                bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                bytesRead = fileInputStream.read(buffer, 0, bufferSize);
             }
-            fos.close();
-            return filename;
+
+            outputStream.writeBytes(lineEnd);
+            outputStream.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
+
+            // Responses from the server (code and message)
+
+            int responseCode = urlConnection.getResponseCode();
+            String responseText = urlConnection.getResponseMessage();
+            Log.i(TAG, responseText.toString());
+
+            fileInputStream.close();
+            outputStream.flush();
+            outputStream.close();
+
         } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+            Log.e(TAG, "file send error", e);
+        } finally {
+            if (urlConnection != null) {
+                urlConnection.disconnect();
+            }
         }
-    }*/
+    }
 
 }
