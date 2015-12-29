@@ -308,10 +308,11 @@ public class RecordActivity extends AppCompatActivity implements ServiceConnecti
                                 public void process(Message msg) {
                                     final long estimatedTime_gyro = System.nanoTime() - startTime_gyro;
                                     final CartesianFloat spinData = msg.getData(CartesianFloat.class);
-                                    String gyro_entry = String.format("Gyro_Log, %s, %d, %tY%<tm%<td-%<tH%<tM%<tS%<tL", spinData.toString(), estimatedTime_gyro, msg.getTimestamp());
-                                    Log.i(TAG, String.format("%s", gyro_entry));
+                                    String gyro_entry = String.format("Gyro_Log,%s,%d", spinData.toString(),estimatedTime_gyro);
+                                    String ats = msg.getTimestampAsString();
+                                    Log.i(TAG, String.format("%s,%s", gyro_entry, ats));
                                     //CSV CODE
-                                    String csv_gyro_entry = gyro_entry + ",";
+                                    String csv_gyro_entry = gyro_entry + "," + ats + ",";
                                     OutputStream out;
                                     try {
                                         out = new BufferedOutputStream(new FileOutputStream(path, true));
@@ -336,10 +337,11 @@ public class RecordActivity extends AppCompatActivity implements ServiceConnecti
                                 public void process(Message msg) {
                                     final long estimatedTime = System.nanoTime() - startTime;
                                     final CartesianFloat axes = msg.getData(CartesianFloat.class);
-                                    String entry = String.format("Accel_Log, %s, %d, %tY%<tm%<td-%<tH%<tM%<tS%<tL", axes.toString(), estimatedTime, msg.getTimestamp());
-                                    Log.i(TAG, String.format("%s", entry));
+                                    String entry = String.format("Accel_Log,%s,%d", axes.toString(), estimatedTime);
+                                    String ts = msg.getTimestampAsString();
+                                    Log.i(TAG, String.format("%s,%s", entry, ts));
                                     //CSV CODE
-                                    String csv_entry = entry + ",";
+                                    String csv_entry = entry + "," + ts + ",";
                                     OutputStream out;
                                     try {
                                         out = new BufferedOutputStream(new FileOutputStream(path, true));
@@ -478,6 +480,8 @@ public class RecordActivity extends AppCompatActivity implements ServiceConnecti
 
 
     public void sendFile(View view) {
+
+        //ADD THE LOADING DIALOG FROM SCANNER
 
         toastIt("attempt to send file");
         HttpURLConnection urlConnection = null;
