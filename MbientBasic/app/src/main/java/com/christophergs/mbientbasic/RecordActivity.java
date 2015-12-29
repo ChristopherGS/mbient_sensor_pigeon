@@ -258,54 +258,40 @@ public class RecordActivity extends AppCompatActivity implements ServiceConnecti
 
             Button bothStartBtn = (Button) findViewById(R.id.start_both_real);
             bothStartBtn.setOnClickListener(new View.OnClickListener() {
-                String baseFolder;
-                Context context;
-                String state = Environment.getExternalStorageState();
-
-                // check if external storage is available
-                /*if(Environment.MEDIA_MOUNTED.equals(state)) {
-                    //accessible via USB and your PCs file manager
-                    baseFolder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-                }
-                // revert to using internal storage
-                else {
-                    baseFolder = context.getFilesDir().getAbsolutePath();
-                }
-
-                File el_file = new File(baseFolder + File.separator + filename);
-
-                if (!el_file.exists()) {
-                    try {
-                        el_file.mkdir();
-                    } catch (Exception e) {
-                        Log.e(TAG, "file directory not foundr", e);
-                    }
-                }
-                //el_file.getParentFile().mkdirs();*/
-
-                final String CSV_HEADER = String.format("sensor,gyro_tuple,time_elapsed,timestamp");
+                //String state = Environment.getExternalStorageState();
+                final String CSV_HEADER = String.format("sensor,x_axis,y_axis,z_axis,time_elapsed,timestamp,");
                 //final String filename = String.format("METAWEAR_%tY%<tm%<td-%<tH%<tM%<tS%<tL.csv", Calendar.getInstance());
                 final String filename = "METAWEAR_COMBO2.csv";
                 File path = new File(Environment.getExternalStoragePublicDirectory(
                         Environment.DIRECTORY_DOWNLOADS), filename);
-                //if (!real_file.mkdirs()) {
-                //    Log.e(TAG, "Directory not created");
-                //}
 
-
-
+                //delete the csv file if it already exists (will be from older recordings)
+                public void prep() {
+                    boolean is_deleted = path.delete();
+                    Log.i(TAG, "deleted: " + is_deleted);
+                }
 
                 @Override
                 public void onClick(View v) {
+                    prep();
+                    OutputStream out;
+                    try {
+                        out = new BufferedOutputStream(new FileOutputStream(path, true));
+                        out.write(CSV_HEADER.getBytes());
+                        out.write("\n".getBytes());
+                        out.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     accelModule.setOutputDataRate(25.f);
                     accelModule.setAxisSamplingRange(ACC_RANGE);
                     bmi160GyroModule.configure()
                             .setFullScaleRange(FullScaleRange.FSR_2000)
                             .setOutputDataRate(OutputDataRate.ODR_25_HZ)
                             .commit();
-                    AsyncOperation<RouteManager> routeManagerResult = accelModule.routeData().fromAxes().log(GYRO_LOG_KEY).commit();
-                    AsyncOperation<RouteManager> routeManagerResult2 = bmi160GyroModule.routeData().fromAxes().log(LOG_KEY).commit();
-                    routeManagerResult.onComplete(new AsyncOperation.CompletionHandler<RouteManager>() {
+                    AsyncOperation<RouteManager> routeManagerResult = accelModule.routeData().fromAxes().log(LOG_KEY).commit();
+                    AsyncOperation<RouteManager> routeManagerResult2 = bmi160GyroModule.routeData().fromAxes().log(GYRO_LOG_KEY).commit();
+                    routeManagerResult2.onComplete(new AsyncOperation.CompletionHandler<RouteManager>() {
                         @Override
                         public void success(RouteManager result) {
                             final long startTime_gyro = System.nanoTime();
@@ -318,12 +304,12 @@ public class RecordActivity extends AppCompatActivity implements ServiceConnecti
                                     String gyro_entry = String.format("Gyro_Log, %s, %d, %tY%<tm%<td-%<tH%<tM%<tS%<tL", spinData.toString(), estimatedTime_gyro, msg.getTimestamp());
                                     Log.i(TAG, String.format("%s", gyro_entry));
                                     //CSV CODE
-                                    String csv_gyro_entry = gyro_entry + "\n";
+                                    String csv_gyro_entry = gyro_entry + ",";
                                     OutputStream out;
                                     try {
                                         out = new BufferedOutputStream(new FileOutputStream(path, true));
                                         out.write(csv_gyro_entry.getBytes());
-                                        out.write(",".getBytes());
+                                        out.write("\n".getBytes());
                                         out.close();
                                     } catch (Exception e) {
                                         Log.e(TAG, "CSV creation error", e);
@@ -332,7 +318,7 @@ public class RecordActivity extends AppCompatActivity implements ServiceConnecti
                             });
                         }
                     });
-                    routeManagerResult2.onComplete(new AsyncOperation.CompletionHandler<RouteManager>() {
+                    routeManagerResult.onComplete(new AsyncOperation.CompletionHandler<RouteManager>() {
                         @Override
                         public void success(RouteManager result) {
 
@@ -346,12 +332,11 @@ public class RecordActivity extends AppCompatActivity implements ServiceConnecti
                                     String entry = String.format("Accel_Log, %s, %d, %tY%<tm%<td-%<tH%<tM%<tS%<tL", axes.toString(), estimatedTime, msg.getTimestamp());
                                     Log.i(TAG, String.format("%s", entry));
                                     //CSV CODE
-                                    String csv_entry = entry + "\n";
+                                    String csv_entry = entry + ",";
                                     OutputStream out;
                                     try {
                                         out = new BufferedOutputStream(new FileOutputStream(path, true));
                                         out.write(csv_entry.getBytes());
-                                        out.write(",".getBytes());
                                         out.write("\n".getBytes());
                                         out.close();
                                     } catch (Exception e) {
