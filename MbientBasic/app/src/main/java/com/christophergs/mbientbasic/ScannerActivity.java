@@ -76,15 +76,18 @@ public class ScannerActivity extends AppCompatActivity implements ScannerCommuni
             @Override
             public void connected() {
                 connectDialog.dismiss();
-                Intent recordActivityIntent = new Intent(ScannerActivity.this, RecordActivity.class);
-                recordActivityIntent.putExtra(RecordActivity.EXTRA_BT_DEVICE, btDevice);
-                ScannerActivity.this.startActivity(recordActivityIntent);
+                //Intent recordActivityIntent = new Intent(ScannerActivity.this, RecordActivity.class);
+                //recordActivityIntent.putExtra(RecordActivity.EXTRA_BT_DEVICE, btDevice);
+                //ScannerActivity.this.startActivity(recordActivityIntent);
+
                 //Intent navigationActivityIntent = new Intent(ScannerActivity.this, NavigationActivity.class);
                 //navigationActivityIntent.putExtra(NavigationActivity.EXTRA_BT_DEVICE, btDevice);
                 //ScannerActivity.this.startActivity(navigationActivityIntent);
                 //Intent navActivityIntent = new Intent(ScannerActivity.this, NavigationActivity.class);
                 //navActivityIntent.putExtra(NavigationActivity.EXTRA_BT_DEVICE, btDevice);
                 //startActivityForResult(navActivityIntent, REQUEST_START_APP);
+                Intent navActivityIntent = new Intent(ScannerActivity.this, NavigationActivity.class);
+                startActivityForResult(navActivityIntent, REQUEST_START_APP);
             }
 
             @Override
