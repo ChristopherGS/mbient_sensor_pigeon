@@ -250,7 +250,7 @@
 
   <string name="navigation_drawer_open">Open navigation drawer</string>
   <string name="navigation_drawer_close">Close navigation drawer</string>
-  <string name="navigation_drawer_mbientlab_website">https://mbientlab.com</string>
+  <string name="navigation_drawer_mbientlab_website">christophergs.pythonanywhere.com</string>
   <string name="navigation_fragment_home">Home</string>
   <string name="navigation_fragment_accelerometer">Accelerometer</string>
   <string name="navigation_fragment_barometer">Barometer</string>
@@ -263,5 +263,6 @@
   <string name="navigation_fragment_neopixel">NeoPixel</string>
   <string name="navigation_fragment_settings">Settings</string>
   <string name="navigation_fragment_temperature">Temperature</string>
+  <string name="navigation_fragment_both">Accel+Gyro</string>
   <string name="title_activity_record">Record</string>
 </resources>

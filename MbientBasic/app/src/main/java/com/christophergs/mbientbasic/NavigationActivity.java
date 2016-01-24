@@ -75,8 +75,8 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
         tempMap.put(R.id.nav_home, HomeFragment.class);
         tempMap.put(R.id.nav_accelerometer, AccelerometerFragment.class);
         tempMap.put(R.id.nav_gyro, GyroFragment.class);
+        tempMap.put(R.id.nav_both, GyroFragment.class);
         tempMap.put(R.id.nav_ibeacon, IBeaconFragment.class);
-        tempMap.put(R.id.nav_neopixel, NeoPixelFragment.class);
         tempMap.put(R.id.nav_settings, SettingsFragment.class);
         FRAGMENT_CLASSES= Collections.unmodifiableMap(tempMap);
     }
@@ -206,6 +206,9 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        /*CS comment:
+            fab is the info button in bottom right
+         */
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -214,14 +217,24 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
             }
         });
 
+        /*CS comment:
+            This creates the toggle "hamburger menu". Without it you have to
+            drag the menu open and closed - not that obvious
+        */
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
+        /* CS comment:
+            This listener basically gives the nav drawer life. Without it, the links don't
+            do anything
+         */
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+
 
         if (savedInstanceState == null) {
             onNavigationItemSelected(navigationView.getMenu().findItem(R.id.nav_home));
@@ -242,6 +255,10 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
         }
     }
 
+    /*CS comment
+        If drawer open, when user presses back will close drawer.
+        Otherwise will disconnect from board
+     */
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -254,6 +271,10 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
         }
     }
 
+
+    /*CS comment:
+        This adds he "Disconnect" part of the top menu
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
