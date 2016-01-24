@@ -124,6 +124,15 @@ public class RecordActivity extends AppCompatActivity implements ServiceConnecti
         accelerationData = (TextView) findViewById(R.id.accelerationData);
         gyroData = (TextView) findViewById(R.id.gyroData);
         Log.i(TAG, "Initialize");
+
+        // TEMPORARY HACK - should use async
+        int SDK_INT = android.os.Build.VERSION.SDK_INT;
+        if (SDK_INT > 8) {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
+                    .permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+
+        }
     }
 
     private final ConnectionStateHandler stateHandler = new ConnectionStateHandler() {
@@ -266,7 +275,7 @@ public class RecordActivity extends AppCompatActivity implements ServiceConnecti
             Button bothStartBtn = (Button) findViewById(R.id.start_both_real);
             bothStartBtn.setOnClickListener(new View.OnClickListener() {
                 //String state = Environment.getExternalStorageState();
-                final String CSV_HEADER = String.format("sensor,x_axis,y_axis,z_axis,time_elapsed,timestamp,");
+                final String CSV_HEADER = String.format("SENSOR_TYPE,X_AXIS,Y_AXIS,Z_AXIS,Time_since_start,TIMESTAMP,");
                 //final String filename = String.format("METAWEAR_%tY%<tm%<td-%<tH%<tM%<tS%<tL.csv", Calendar.getInstance());
                 final String filename = "METAWEAR_COMBO2.csv";
                 File path = new File(Environment.getExternalStoragePublicDirectory(
@@ -491,6 +500,9 @@ public class RecordActivity extends AppCompatActivity implements ServiceConnecti
         String pathToOurFile = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MBIENTMBIENT.csv";
         String lineEnd = "\r\n";
         String twoHyphens = "--";
+        final String filename = "METAWEAR_COMBO2.csv";
+        File path = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOWNLOADS), filename);
 
         int bytesRead, bytesAvailable, bufferSize;
         byte[] buffer;
@@ -498,11 +510,9 @@ public class RecordActivity extends AppCompatActivity implements ServiceConnecti
 
         try {
             URL url = new URL("http://christophergs.pythonanywhere.com/api/csv");
-
             urlConnection = (HttpURLConnection) url.openConnection();
+            FileInputStream fileInputStream = new FileInputStream(path);
 
-            FileInputStream fileInputStream = new FileInputStream(new File(pathToOurFile));
-            //File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), "MBIENTMBIENT.csv");
 
 
             urlConnection.setRequestMethod("POST");
@@ -514,8 +524,10 @@ public class RecordActivity extends AppCompatActivity implements ServiceConnecti
 
             outputStream = new DataOutputStream(urlConnection.getOutputStream());
             outputStream.writeBytes(twoHyphens + boundary + lineEnd);
-            outputStream.writeBytes("Content-Disposition: form-data;name=\"android_file\";filename=\"" + pathToOurFile + "\"" + lineEnd);
+            outputStream.writeBytes("Content-Disposition: form-data;name=\"android_file\";filename=\"" + filename + "\"" + lineEnd);
             outputStream.writeBytes(lineEnd);
+
+            Log.i(TAG, "able to set output stream");
 
             //Send request
 
@@ -540,7 +552,7 @@ public class RecordActivity extends AppCompatActivity implements ServiceConnecti
 
             int responseCode = urlConnection.getResponseCode();
             String responseText = urlConnection.getResponseMessage();
-            Log.i(TAG, responseText.toString());
+            Log.i(TAG, "response from server: "+responseText.toString());
 
             fileInputStream.close();
             outputStream.flush();
