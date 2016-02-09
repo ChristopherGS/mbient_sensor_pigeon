@@ -38,56 +38,54 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.christophergs.mbientbasic.R;
 import com.github.mikephil.charting.components.YAxis;
 import com.mbientlab.metawear.AsyncOperation;
 import com.mbientlab.metawear.RouteManager;
 import com.mbientlab.metawear.UnsupportedModuleException;
 import com.christophergs.mbientbasic.help.HelpOption;
 import com.christophergs.mbientbasic.help.HelpOptionAdapter;
-import com.mbientlab.metawear.data.Units;
-import com.mbientlab.metawear.module.Gyro;
+import com.mbientlab.metawear.module.Accelerometer;
+import com.mbientlab.metawear.module.Bmi160Accelerometer;
+import com.mbientlab.metawear.module.Mma8452qAccelerometer;
 
 /**
  * Created by etsai on 8/19/2015.
  */
 public class BothFragment extends ThreeAxisChartFragment {
-    private static final float[] AVAILABLE_RANGES= {125.f, 250.f, 500.f, 1000.f, 2000.f};
-    private static final float INITIAL_RANGE= 125.f, GYR_ODR= 25.f;
-    private static final String STREAM_KEY= "gyro_stream";
+    private static final float[] MMA845Q_RANGES= {2.f, 4.f, 8.f}, BMI160_RANGES= {2.f, 4.f, 8.f, 16.f};
+    private static final float INITIAL_RANGE= 2.f, ACC_FREQ= 50.f;
+    private static final String STREAM_KEY= "accel_stream";
 
-    private Gyro gyroModule= null;
+    private Spinner accRangeSelection;
+    private Accelerometer accelModule= null;
     private int rangeIndex= 0;
 
     public BothFragment() {
-        super("rotation", R.layout.fragment_sensor_config_spinner,
-                R.string.navigation_fragment_gyro, STREAM_KEY, -INITIAL_RANGE, INITIAL_RANGE, GYR_ODR);
-    }
-
-    @Override
-    protected void boardReady() throws UnsupportedModuleException {
-        gyroModule= mwBoard.getModule(Gyro.class);
-    }
-
-    @Override
-    protected void fillHelpOptionAdapter(HelpOptionAdapter adapter) {
-        adapter.add(new HelpOption(R.string.config_name_gyro_range, R.string.config_desc_gyro_range));
+        super("acceleration", R.layout.fragment_sensor_config_spinner,
+                R.string.navigation_fragment_accelerometer, STREAM_KEY, -INITIAL_RANGE, INITIAL_RANGE, ACC_FREQ);
     }
 
     @Override
     public void onViewCreated(final View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        final YAxis leftAxis = chart.getAxisLeft();
+        ((TextView) view.findViewById(R.id.config_option_title)).setText(R.string.config_name_acc_range);
 
-        ((TextView) view.findViewById(R.id.config_option_title)).setText(R.string.config_name_gyro_range);
-
-        Spinner rotationRangeSelection= (Spinner) view.findViewById(R.id.config_option_spinner);
-        rotationRangeSelection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        accRangeSelection= (Spinner) view.findViewById(R.id.config_option_spinner);
+        accRangeSelection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 rangeIndex = position;
-                leftAxis.setAxisMaxValue(AVAILABLE_RANGES[rangeIndex]);
-                leftAxis.setAxisMinValue(-AVAILABLE_RANGES[rangeIndex]);
+
+                final YAxis leftAxis = chart.getAxisLeft();
+                if (accelModule instanceof Bmi160Accelerometer) {
+                    leftAxis.setAxisMaxValue(BMI160_RANGES[rangeIndex]);
+                    leftAxis.setAxisMinValue(-BMI160_RANGES[rangeIndex]);
+                } else if (accelModule instanceof Mma8452qAccelerometer) {
+                    leftAxis.setAxisMaxValue(MMA845Q_RANGES[rangeIndex]);
+                    leftAxis.setAxisMinValue(-MMA845Q_RANGES[rangeIndex]);
+                }
 
                 refreshChart(false);
             }
@@ -97,29 +95,59 @@ public class BothFragment extends ThreeAxisChartFragment {
 
             }
         });
-        ArrayAdapter<CharSequence> spinnerAdapter= ArrayAdapter.createFromResource(getActivity().getApplicationContext(), R.array.values_gyro_range, android.R.layout.simple_spinner_item);
-        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        rotationRangeSelection.setAdapter(spinnerAdapter);
-        rotationRangeSelection.setSelection(rangeIndex);
+
+        fillRangeAdapter();
+    }
+
+    @Override
+    protected void boardReady() throws UnsupportedModuleException{
+        accelModule= mwBoard.getModule(Accelerometer.class);
+
+        fillRangeAdapter();
+    }
+
+    @Override
+    protected void fillHelpOptionAdapter(HelpOptionAdapter adapter) {
+        adapter.add(new HelpOption(R.string.config_name_acc_range, R.string.config_desc_acc_range));
     }
 
     @Override
     protected void setup() {
-        gyroModule.setOutputDataRate(GYR_ODR);
-        gyroModule.setAngularRateRange(AVAILABLE_RANGES[rangeIndex]);
+        accelModule.setOutputDataRate(ACC_FREQ);
+        if (accelModule instanceof Bmi160Accelerometer) {
+            accelModule.setAxisSamplingRange(BMI160_RANGES[rangeIndex]);
+        } else if (accelModule instanceof Mma8452qAccelerometer) {
+            accelModule.setAxisSamplingRange(MMA845Q_RANGES[rangeIndex]);
+        }
 
-        AsyncOperation<RouteManager> routeManagerResult= gyroModule.routeData().fromAxes().stream(STREAM_KEY).commit();
+        AsyncOperation<RouteManager> routeManagerResult= accelModule.routeData().fromAxes().stream(STREAM_KEY).commit();
         routeManagerResult.onComplete(dataStreamManager);
         routeManagerResult.onComplete(new AsyncOperation.CompletionHandler<RouteManager>() {
             @Override
             public void success(RouteManager result) {
-                gyroModule.start();
+                accelModule.enableAxisSampling();
+                accelModule.start();
             }
         });
     }
 
     @Override
     protected void clean() {
-        gyroModule.stop();
+        accelModule.stop();
+        accelModule.disableAxisSampling();
+    }
+
+    private void fillRangeAdapter() {
+        ArrayAdapter<CharSequence> spinnerAdapter= null;
+        if (accelModule instanceof Bmi160Accelerometer) {
+            spinnerAdapter= ArrayAdapter.createFromResource(getActivity().getApplicationContext(), R.array.values_bmi160_acc_range, android.R.layout.simple_spinner_item);
+        } else if (accelModule instanceof Mma8452qAccelerometer) {
+            spinnerAdapter= ArrayAdapter.createFromResource(getActivity().getApplicationContext(), R.array.values_mma8452q_acc_range, android.R.layout.simple_spinner_item);
+        }
+
+        if (spinnerAdapter != null) {
+            spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            accRangeSelection.setAdapter(spinnerAdapter);
+        }
     }
 }

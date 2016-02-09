@@ -42,6 +42,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -69,12 +70,14 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
 
     private final static String FRAGMENT_KEY= "FRAGMENT_KEY";
     private static final Map<Integer, Class<? extends ModuleFragmentBase>> FRAGMENT_CLASSES;
+    private static final String TAG = "MetaWear";
 
     static {
         Map<Integer, Class<? extends ModuleFragmentBase>> tempMap= new LinkedHashMap<>();
         tempMap.put(R.id.nav_home, HomeFragment.class);
         tempMap.put(R.id.nav_accelerometer, AccelerometerFragment.class);
         tempMap.put(R.id.nav_gyro, GyroFragment.class);
+        tempMap.put(R.id.nav_gyro_new, GyroFragmentNew.class);
         tempMap.put(R.id.nav_both, BothFragment.class);
         tempMap.put(R.id.nav_ibeacon, IBeaconFragment.class);
         tempMap.put(R.id.nav_settings, SettingsFragment.class);
@@ -135,12 +138,14 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
     private BluetoothDevice btDevice;
     private MetaWearBoard mwBoard;
     private Fragment currentFragment= null;
+    private Fragment currentFragment2= null;
 
     private final ConnectionStateHandler connectionHandler= new MetaWearBoard.ConnectionStateHandler() {
         @Override
         public void connected() {
             ((DialogFragment) getSupportFragmentManager().findFragmentByTag(RECONNECT_DIALOG_TAG)).dismiss();
             ((ModuleFragmentBase) currentFragment).reconnected();
+            ((ModuleFragmentBase) currentFragment2).reconnected();
         }
 
         @Override
@@ -214,6 +219,7 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
             @Override
             public void onClick(View view) {
                 ((ModuleFragmentBase) currentFragment).showHelpDialog();
+                ((ModuleFragmentBase) currentFragment2).showHelpDialog();
             }
         });
 
@@ -312,6 +318,8 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
+        Log.i(TAG, String.format("Fragment ID: %d", id));
+
 
         // update the main content by replacing fragments
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -320,8 +328,26 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
             transaction.detach(currentFragment);
         }
 
+        if (currentFragment2 != null) {
+            transaction.detach(currentFragment2);
+        }
+
+        //we keep tag 1 as the per the mbient code and make tag 2 the adjusted gyro,
+        //knowing that the BothFragment is a copy of accelerometer with stream adjustments
         String fragmentTag= FRAGMENT_CLASSES.get(id).getCanonicalName();
-        currentFragment= fragmentManager.findFragmentByTag(fragmentTag);
+        String fragmentTag2= FRAGMENT_CLASSES.get(2131624135).getCanonicalName();
+
+
+        Log.i(TAG, String.format("Fragment Tag: %s", fragmentTag));
+
+        if (FRAGMENT_CLASSES.get(id).getCanonicalName().equals("com.christophergs.mbientbasic.BothFragment")) {
+            Log.i(TAG, String.format("Both fragment selected2: %s", fragmentTag));
+            currentFragment= fragmentManager.findFragmentByTag(fragmentTag);
+            currentFragment2= fragmentManager.findFragmentByTag("com.christophergs.mbientbasic.GyroFragmentNew");
+        } else {
+            currentFragment= fragmentManager.findFragmentByTag(fragmentTag);
+            Log.i(TAG, String.format("Did not find tag: %s", fragmentTag));
+        }
 
         if (currentFragment == null) {
             try {
@@ -333,7 +359,27 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
             transaction.add(R.id.container, currentFragment, fragmentTag);
         }
 
-        transaction.attach(currentFragment).commit();
+        if (FRAGMENT_CLASSES.get(id).getCanonicalName().equals("com.christophergs.mbientbasic.BothFragment")) {
+
+            if (currentFragment2 == null) {
+                try {
+                    currentFragment2= FRAGMENT_CLASSES.get(2131624135).getConstructor().newInstance();
+                } catch (Exception e) {
+                    throw new RuntimeException("Cannot instantiate fragment", e);
+                }
+
+                transaction.add(R.id.container2, currentFragment2, fragmentTag2);
+            }
+        }
+
+        if (FRAGMENT_CLASSES.get(id).getCanonicalName().equals("com.christophergs.mbientbasic.BothFragment")) {
+            transaction.attach(currentFragment);
+            transaction.attach(currentFragment2);
+            transaction.commit();
+        } else {
+                transaction.attach(currentFragment);
+                transaction.commit();
+        }
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {

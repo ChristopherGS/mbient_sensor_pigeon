@@ -256,6 +256,7 @@
   <string name="navigation_fragment_barometer">Barometer</string>
   <string name="navigation_fragment_gpio">Gpio</string>
   <string name="navigation_fragment_gyro">Gyro</string>
+  <string name="navigation_fragment_gyro_new">GyroAlt</string>
   <string name="navigation_fragment_haptic">Haptic</string>
   <string name="navigation_fragment_ibeacon">iBeacon</string>
   <string name="navigation_fragment_light">Light</string>
