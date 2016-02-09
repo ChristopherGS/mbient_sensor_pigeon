@@ -58,7 +58,7 @@ import java.util.ArrayList;
  */
 public abstract class SensorFragment extends ModuleFragmentBase {
     private static final float FPS= 30.f;
-    private static final long UPDATE_PERIOD= (long) ((1 / FPS) * 1000L);
+    public static final long UPDATE_PERIOD= (long) ((1 / FPS) * 1000L);
 
     protected final ArrayList<String> chartXValues= new ArrayList<>();
     protected LineChart chart;
@@ -70,7 +70,7 @@ public abstract class SensorFragment extends ModuleFragmentBase {
     private byte globalLayoutListenerCounter= 0;
     private final int layoutId;
 
-    private final Runnable updateChartTask= new Runnable() {
+    public final Runnable updateChartTask= new Runnable() {
         @Override
         public void run() {
             chart.notifyDataSetChanged();
@@ -80,7 +80,7 @@ public abstract class SensorFragment extends ModuleFragmentBase {
             chartHandler.postDelayed(updateChartTask, UPDATE_PERIOD);
         }
     };
-    private final Handler chartHandler= new Handler();
+    public final Handler chartHandler= new Handler();
 
     protected SensorFragment(int sensorResId, int layoutId, float min, float max) {
         super(sensorResId);
@@ -89,7 +89,7 @@ public abstract class SensorFragment extends ModuleFragmentBase {
         this.max= max;
     }
 
-    private void moveViewToLast() {
+    public void moveViewToLast() {
         chart.setVisibleXRangeMaximum(120);
         if (sampleCount > 120) {
             chart.moveViewToX(sampleCount - 121);

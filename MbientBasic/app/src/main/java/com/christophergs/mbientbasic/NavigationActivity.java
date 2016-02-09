@@ -390,15 +390,27 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
+
+
         return true;
     }
 
-    @Override
-    public void onStartButtonPressed(int position)
-    {
+    public void onStartButtonPressed(int position) {
         //Do something with the position value passed back
         Log.i(TAG, String.format("FRAG TEST: %d", position));
         Log.i(TAG, String.format("CurrentFragment: %s", currentFragment));
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        BothFragment f1 = (BothFragment) fragmentManager.findFragmentByTag("com.christophergs.mbientbasic.BothFragment");
+        if (position == 1){
+            f1.blah("foo");
+            f1.moveViewToLast();
+            f1.setup();
+            f1.chartHandler.postDelayed(f1.updateChartTask, f1.UPDATE_PERIOD);
+
+        } else {
+            f1.blah("bar");
+            f1.clean();
+        }
 
     }
 

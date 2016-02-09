@@ -32,7 +32,11 @@
 package com.christophergs.mbientbasic;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -65,6 +69,7 @@ public class BothFragment extends ThreeAxisChartFragment {
     private Spinner accRangeSelection;
     private Accelerometer accelModule= null;
     private int rangeIndex= 0;
+    private static final String TAG = "MetaWear";
     OnFragTestListener mCallback;
 
     public BothFragment() {
@@ -142,8 +147,7 @@ public class BothFragment extends ThreeAxisChartFragment {
         adapter.add(new HelpOption(R.string.config_name_acc_range, R.string.config_desc_acc_range));
     }
 
-    @Override
-    protected void setup() {
+    public void setup() {
         accelModule.setOutputDataRate(ACC_FREQ);
         if (accelModule instanceof Bmi160Accelerometer) {
             accelModule.setAxisSamplingRange(BMI160_RANGES[rangeIndex]);
@@ -162,8 +166,13 @@ public class BothFragment extends ThreeAxisChartFragment {
         });
     }
 
+    public String blah(String foo) {
+        Log.i(TAG, String.format("blah says: %s", foo));
+        return foo;
+    }
+
     @Override
-    protected void clean() {
+    public void clean() {
         accelModule.stop();
         accelModule.disableAxisSampling();
     }
