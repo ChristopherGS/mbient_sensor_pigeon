@@ -31,12 +31,17 @@
 
 package com.christophergs.mbientbasic;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CompoundButton;
+import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.christophergs.mbientbasic.R;
 import com.github.mikephil.charting.components.YAxis;
@@ -60,6 +65,7 @@ public class BothFragment extends ThreeAxisChartFragment {
     private Spinner accRangeSelection;
     private Accelerometer accelModule= null;
     private int rangeIndex= 0;
+    OnFragTestListener mCallback;
 
     public BothFragment() {
         super("acceleration", R.layout.fragment_sensor_config_spinner,
@@ -72,7 +78,7 @@ public class BothFragment extends ThreeAxisChartFragment {
 
         ((TextView) view.findViewById(R.id.config_option_title)).setText(R.string.config_name_acc_range);
 
-        accRangeSelection= (Spinner) view.findViewById(R.id.config_option_spinner);
+        accRangeSelection = (Spinner) view.findViewById(R.id.config_option_spinner);
         accRangeSelection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -97,6 +103,31 @@ public class BothFragment extends ThreeAxisChartFragment {
         });
 
         fillRangeAdapter();
+
+        ((Switch) view.findViewById(R.id.sample_control)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    mCallback.onStartButtonPressed(1);
+                } else {
+                    mCallback.onStartButtonPressed(2);
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        // This makes sure that the container activity has implemented
+        // the callback interface. If not, it throws an exception
+        try {
+            mCallback = (OnFragTestListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement OnFragTestListener");
+        }
     }
 
     @Override
@@ -149,5 +180,9 @@ public class BothFragment extends ThreeAxisChartFragment {
             spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             accRangeSelection.setAdapter(spinnerAdapter);
         }
+    }
+
+    public interface OnFragTestListener{
+        public void onStartButtonPressed(int position);
     }
 }

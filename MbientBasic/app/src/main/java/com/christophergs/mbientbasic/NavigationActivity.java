@@ -52,6 +52,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.christophergs.mbientbasic.R;
 import com.mbientlab.metawear.MetaWearBleService;
@@ -65,7 +66,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class NavigationActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, ServiceConnection, FragmentBus {
+public class NavigationActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, BothFragment.OnFragTestListener, ServiceConnection, FragmentBus {
     public static final String EXTRA_BT_DEVICE= "EXTRA_BT_DEVICE";
 
     private final static String FRAGMENT_KEY= "FRAGMENT_KEY";
@@ -390,6 +391,15 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public void onStartButtonPressed(int position)
+    {
+        //Do something with the position value passed back
+        Log.i(TAG, String.format("FRAG TEST: %d", position));
+        Log.i(TAG, String.format("CurrentFragment: %s", currentFragment));
+
     }
 
     @Override
