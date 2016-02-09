@@ -41,10 +41,12 @@ import android.widget.TextView;
 
 import com.github.mikephil.charting.components.YAxis;
 import com.mbientlab.metawear.AsyncOperation;
+import com.mbientlab.metawear.Message;
 import com.mbientlab.metawear.RouteManager;
 import com.mbientlab.metawear.UnsupportedModuleException;
 import com.christophergs.mbientbasic.help.HelpOption;
 import com.christophergs.mbientbasic.help.HelpOptionAdapter;
+import com.mbientlab.metawear.data.CartesianFloat;
 import com.mbientlab.metawear.data.Units;
 import com.mbientlab.metawear.module.Gyro;
 
@@ -115,9 +117,18 @@ public class GyroFragmentNew extends ThreeAxisChartFragment {
         routeManagerResult.onComplete(new AsyncOperation.CompletionHandler<RouteManager>() {
             @Override
             public void success(RouteManager result) {
-                gyroModule.start();
+                final long startTime_gyro = System.nanoTime();
+                result.subscribe(STREAM_KEY, new RouteManager.MessageHandler() {
+                    @Override
+                    public void process(Message msg) {
+                        final long estimatedTime_gyro = System.nanoTime() - startTime_gyro;
+                        final CartesianFloat spinData = msg.getData(CartesianFloat.class);
+                        Log.i(TAG, String.format("Gyro_Log: %s, %d, %tY%<tm%<td-%<tH%<tM%<tS%<tL", spinData.toString(), estimatedTime_gyro, msg.getTimestamp()));
+                    }
+                });
             }
         });
+        gyroModule.start();
     }
 
     @Override

@@ -31,6 +31,7 @@ import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -41,6 +42,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.View;
@@ -62,6 +64,7 @@ import com.mbientlab.metawear.UnsupportedModuleException;
 import com.christophergs.mbientbasic.ModuleFragmentBase.FragmentBus;
 import com.mbientlab.metawear.module.Debug;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -428,6 +431,25 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
             f2.chartHandler.removeCallbacks(f2.updateChartTask);
         }
 
+    }
+
+    public void onSaveButtonPressed(int position) {
+        Log.i(TAG, String.format("SAVE TEST: %d", position));
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        BothFragment f1 = (BothFragment) fragmentManager.findFragmentByTag("com.christophergs.mbientbasic.BothFragment");
+        GyroFragmentNew f2 = (GyroFragmentNew) fragmentManager.findFragmentByTag("com.christophergs.mbientbasic.GyroFragmentNew");
+        String filename = f1.saveData();
+
+        if (filename != null) {
+            File dataFile = getFileStreamPath(filename);
+            Uri contentUri = FileProvider.getUriForFile(this, "com.mbientlab.metawear.app.fileprovider", dataFile);
+
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.setType("text/plain");
+            intent.putExtra(Intent.EXTRA_SUBJECT, filename);
+            intent.putExtra(Intent.EXTRA_STREAM, contentUri);
+            startActivity(Intent.createChooser(intent, "Saving Data"));
+        }
     }
 
     @Override

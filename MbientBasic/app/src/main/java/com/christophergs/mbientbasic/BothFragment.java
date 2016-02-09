@@ -33,13 +33,17 @@ package com.christophergs.mbientbasic;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -50,13 +54,17 @@ import android.widget.Toast;
 import com.christophergs.mbientbasic.R;
 import com.github.mikephil.charting.components.YAxis;
 import com.mbientlab.metawear.AsyncOperation;
+import com.mbientlab.metawear.Message;
 import com.mbientlab.metawear.RouteManager;
 import com.mbientlab.metawear.UnsupportedModuleException;
 import com.christophergs.mbientbasic.help.HelpOption;
 import com.christophergs.mbientbasic.help.HelpOptionAdapter;
+import com.mbientlab.metawear.data.CartesianFloat;
 import com.mbientlab.metawear.module.Accelerometer;
 import com.mbientlab.metawear.module.Bmi160Accelerometer;
 import com.mbientlab.metawear.module.Mma8452qAccelerometer;
+
+import java.io.File;
 
 /**
  * Created by etsai on 8/19/2015.
@@ -119,6 +127,15 @@ public class BothFragment extends ThreeAxisChartFragment {
                 }
             }
         });
+
+        Button saveButton= (Button) view.findViewById(R.id.layout_two_button_right);
+        saveButton.setText(R.string.label_save);
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mCallback.onSaveButtonPressed(1);
+            }
+        });
     }
 
     @Override
@@ -160,10 +177,19 @@ public class BothFragment extends ThreeAxisChartFragment {
         routeManagerResult.onComplete(new AsyncOperation.CompletionHandler<RouteManager>() {
             @Override
             public void success(RouteManager result) {
-                accelModule.enableAxisSampling();
-                accelModule.start();
+                final long startTime = System.nanoTime();
+                result.subscribe(STREAM_KEY, new RouteManager.MessageHandler() {
+                    @Override
+                    public void process(Message msg) {
+                        final long estimatedTime = System.nanoTime() - startTime;
+                        final CartesianFloat axes = msg.getData(CartesianFloat.class);
+                        Log.i(TAG, String.format("Accel_Log: %s, %d, %tY%<tm%<td-%<tH%<tM%<tS%<tL", axes.toString(), estimatedTime, msg.getTimestamp()));
+                    }
+                });
             }
         });
+        accelModule.enableAxisSampling();
+        accelModule.start();
     }
 
     public String blah(String foo) {
@@ -193,5 +219,6 @@ public class BothFragment extends ThreeAxisChartFragment {
 
     public interface OnFragTestListener{
         public void onStartButtonPressed(int position);
+        public void onSaveButtonPressed(int position);
     }
 }
