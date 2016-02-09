@@ -33,6 +33,7 @@ package com.christophergs.mbientbasic;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.os.Environment;
 
 import com.christophergs.mbientbasic.SensorFragment;
 import com.github.mikephil.charting.data.Entry;
@@ -43,7 +44,10 @@ import com.mbientlab.metawear.Message;
 import com.mbientlab.metawear.RouteManager;
 import com.mbientlab.metawear.data.CartesianFloat;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -87,9 +91,12 @@ public abstract class ThreeAxisChartFragment extends SensorFragment {
     protected String saveData() {
         final String CSV_HEADER = String.format("time,x-%s,y-%s,z-%s%n", dataType, dataType, dataType);
         String filename = String.format("%s_%tY%<tm%<td-%<tH%<tM%<tS%<tL.csv", getActivity().getApplicationContext().getString(sensorResId), Calendar.getInstance());
+        File path = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOWNLOADS), filename);
 
+        OutputStream fos;
         try {
-            FileOutputStream fos = getActivity().openFileOutput(filename, Context.MODE_PRIVATE);
+            fos = new BufferedOutputStream(new FileOutputStream(path, true));
             fos.write(CSV_HEADER.getBytes());
 
             LineData data = chart.getLineData();

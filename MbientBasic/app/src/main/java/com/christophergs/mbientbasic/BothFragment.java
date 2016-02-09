@@ -136,6 +136,14 @@ public class BothFragment extends ThreeAxisChartFragment {
                 mCallback.onSaveButtonPressed(1);
             }
         });
+
+        Button clearButton= (Button) view.findViewById(R.id.layout_two_button_left);
+        clearButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mCallback.onClearButtonPressed(1);
+            }
+        });
     }
 
     @Override
@@ -178,18 +186,20 @@ public class BothFragment extends ThreeAxisChartFragment {
             @Override
             public void success(RouteManager result) {
                 final long startTime = System.nanoTime();
-                result.subscribe(STREAM_KEY, new RouteManager.MessageHandler() {
+                accelModule.enableAxisSampling();
+                accelModule.start();
+                /*result.subscribe(STREAM_KEY, new RouteManager.MessageHandler() {
                     @Override
                     public void process(Message msg) {
                         final long estimatedTime = System.nanoTime() - startTime;
                         final CartesianFloat axes = msg.getData(CartesianFloat.class);
                         Log.i(TAG, String.format("Accel_Log: %s, %d, %tY%<tm%<td-%<tH%<tM%<tS%<tL", axes.toString(), estimatedTime, msg.getTimestamp()));
                     }
-                });
+                });*/
             }
         });
-        accelModule.enableAxisSampling();
-        accelModule.start();
+        //accelModule.enableAxisSampling();
+        //accelModule.start();
     }
 
     public String blah(String foo) {
@@ -220,5 +230,6 @@ public class BothFragment extends ThreeAxisChartFragment {
     public interface OnFragTestListener{
         public void onStartButtonPressed(int position);
         public void onSaveButtonPressed(int position);
+        public void onClearButtonPressed(int position);
     }
 }

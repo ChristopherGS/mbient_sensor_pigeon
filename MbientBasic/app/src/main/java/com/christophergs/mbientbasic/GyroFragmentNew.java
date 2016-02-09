@@ -118,17 +118,18 @@ public class GyroFragmentNew extends ThreeAxisChartFragment {
             @Override
             public void success(RouteManager result) {
                 final long startTime_gyro = System.nanoTime();
-                result.subscribe(STREAM_KEY, new RouteManager.MessageHandler() {
+                gyroModule.start();
+                /*result.subscribe(STREAM_KEY, new RouteManager.MessageHandler() {
                     @Override
                     public void process(Message msg) {
                         final long estimatedTime_gyro = System.nanoTime() - startTime_gyro;
                         final CartesianFloat spinData = msg.getData(CartesianFloat.class);
                         Log.i(TAG, String.format("Gyro_Log: %s, %d, %tY%<tm%<td-%<tH%<tM%<tS%<tL", spinData.toString(), estimatedTime_gyro, msg.getTimestamp()));
                     }
-                });
+                });*/
             }
         });
-        gyroModule.start();
+        //gyroModule.start();
     }
 
     @Override

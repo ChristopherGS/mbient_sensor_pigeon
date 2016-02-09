@@ -405,7 +405,6 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
         BothFragment f1 = (BothFragment) fragmentManager.findFragmentByTag("com.christophergs.mbientbasic.BothFragment");
         GyroFragmentNew f2 = (GyroFragmentNew) fragmentManager.findFragmentByTag("com.christophergs.mbientbasic.GyroFragmentNew");
         if (position == 1){
-            f1.blah("foo");
             f1.moveViewToLast();
             f2.moveViewToLast();
             f1.setup();
@@ -415,8 +414,6 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
         } else {
             f1.chart.setVisibleXRangeMaximum(f1.sampleCount);
             f2.chart.setVisibleXRangeMaximum(f2.sampleCount);
-            f1.blah("bar");
-            f2.blah("bar");
             f1.clean();
             f2.clean();
             if (f1.streamRouteManager != null) {
@@ -440,6 +437,7 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
         GyroFragmentNew f2 = (GyroFragmentNew) fragmentManager.findFragmentByTag("com.christophergs.mbientbasic.GyroFragmentNew");
         String filename = f1.saveData();
 
+        /*
         if (filename != null) {
             File dataFile = getFileStreamPath(filename);
             Uri contentUri = FileProvider.getUriForFile(this, "com.mbientlab.metawear.app.fileprovider", dataFile);
@@ -449,7 +447,17 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
             intent.putExtra(Intent.EXTRA_SUBJECT, filename);
             intent.putExtra(Intent.EXTRA_STREAM, contentUri);
             startActivity(Intent.createChooser(intent, "Saving Data"));
-        }
+        }*/
+    }
+
+    public void onClearButtonPressed(int position) {
+        Log.i(TAG, String.format("CLEAR TEST: %d", position));
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        BothFragment f1 = (BothFragment) fragmentManager.findFragmentByTag("com.christophergs.mbientbasic.BothFragment");
+        GyroFragmentNew f2 = (GyroFragmentNew) fragmentManager.findFragmentByTag("com.christophergs.mbientbasic.GyroFragmentNew");
+        f1.refreshChart(true);
+        f2.refreshChart(true);
+
     }
 
     @Override

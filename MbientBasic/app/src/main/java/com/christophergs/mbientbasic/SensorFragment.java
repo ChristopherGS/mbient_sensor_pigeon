@@ -172,7 +172,7 @@ public abstract class SensorFragment extends ModuleFragmentBase {
 
                 if (filename != null) {
                     File dataFile = getActivity().getFileStreamPath(filename);
-                    Uri contentUri = FileProvider.getUriForFile(getActivity(), "com.mbientlab.metawear.app.fileprovider", dataFile);
+                    Uri contentUri = FileProvider.getUriForFile(getActivity(), "com.mbientlab.metawear.app.fileprovider2", dataFile);
 
                     Intent intent = new Intent(Intent.ACTION_SEND);
                     intent.setType("text/plain");
