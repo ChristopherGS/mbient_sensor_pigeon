@@ -401,15 +401,20 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
         Log.i(TAG, String.format("CurrentFragment: %s", currentFragment));
         FragmentManager fragmentManager = getSupportFragmentManager();
         BothFragment f1 = (BothFragment) fragmentManager.findFragmentByTag("com.christophergs.mbientbasic.BothFragment");
+        GyroFragmentNew f2 = (GyroFragmentNew) fragmentManager.findFragmentByTag("com.christophergs.mbientbasic.GyroFragmentNew");
         if (position == 1){
             f1.blah("foo");
             f1.moveViewToLast();
+            f2.moveViewToLast();
             f1.setup();
+            f2.setup();
             f1.chartHandler.postDelayed(f1.updateChartTask, f1.UPDATE_PERIOD);
-
+            f2.chartHandler.postDelayed(f2.updateChartTask, f2.UPDATE_PERIOD);
         } else {
             f1.blah("bar");
+            f2.blah("bar");
             f1.clean();
+            f2.clean();
         }
 
     }

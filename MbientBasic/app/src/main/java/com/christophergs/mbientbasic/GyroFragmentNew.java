@@ -32,6 +32,7 @@
 package com.christophergs.mbientbasic;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -54,6 +55,7 @@ public class GyroFragmentNew extends ThreeAxisChartFragment {
     private static final float[] AVAILABLE_RANGES= {125.f, 250.f, 500.f, 1000.f, 2000.f};
     private static final float INITIAL_RANGE= 125.f, GYR_ODR= 25.f;
     private static final String STREAM_KEY= "gyro_stream";
+    private static final String TAG = "MetaWear";
 
     private Gyro gyroModule= null;
     private int rangeIndex= 0;
@@ -104,7 +106,7 @@ public class GyroFragmentNew extends ThreeAxisChartFragment {
     }
 
     @Override
-    protected void setup() {
+    public void setup() {
         gyroModule.setOutputDataRate(GYR_ODR);
         gyroModule.setAngularRateRange(AVAILABLE_RANGES[rangeIndex]);
 
@@ -119,7 +121,12 @@ public class GyroFragmentNew extends ThreeAxisChartFragment {
     }
 
     @Override
-    protected void clean() {
+    public void clean() {
         gyroModule.stop();
+    }
+
+    public String blah(String foo) {
+        Log.i(TAG, String.format("blah says: %s", foo));
+        return foo;
     }
 }
