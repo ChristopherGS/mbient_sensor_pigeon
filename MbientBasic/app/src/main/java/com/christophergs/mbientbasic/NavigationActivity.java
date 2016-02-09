@@ -80,7 +80,6 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
         tempMap.put(R.id.nav_gyro, GyroFragment.class);
         tempMap.put(R.id.nav_gyro_new, GyroFragmentNew.class);
         tempMap.put(R.id.nav_both, BothFragment.class);
-        tempMap.put(R.id.nav_ibeacon, IBeaconFragment.class);
         tempMap.put(R.id.nav_settings, SettingsFragment.class);
         FRAGMENT_CLASSES= Collections.unmodifiableMap(tempMap);
     }
@@ -336,7 +335,7 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
         //we keep tag 1 as the per the mbient code and make tag 2 the adjusted gyro,
         //knowing that the BothFragment is a copy of accelerometer with stream adjustments
         String fragmentTag= FRAGMENT_CLASSES.get(id).getCanonicalName();
-        String fragmentTag2= FRAGMENT_CLASSES.get(2131624136).getCanonicalName(); //Gyro New
+        String fragmentTag2= FRAGMENT_CLASSES.get(2131624123).getCanonicalName(); //Gyro New
 
 
         Log.i(TAG, String.format("Fragment Tag: %s", fragmentTag));
@@ -364,7 +363,7 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
 
             if (currentFragment2 == null) {
                 try {
-                    currentFragment2= FRAGMENT_CLASSES.get(2131624136).getConstructor().newInstance();
+                    currentFragment2= FRAGMENT_CLASSES.get(2131624123).getConstructor().newInstance();
                 } catch (Exception e) {
                     throw new RuntimeException("Cannot instantiate fragment", e);
                 }
@@ -411,10 +410,22 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
             f1.chartHandler.postDelayed(f1.updateChartTask, f1.UPDATE_PERIOD);
             f2.chartHandler.postDelayed(f2.updateChartTask, f2.UPDATE_PERIOD);
         } else {
+            f1.chart.setVisibleXRangeMaximum(f1.sampleCount);
+            f2.chart.setVisibleXRangeMaximum(f2.sampleCount);
             f1.blah("bar");
             f2.blah("bar");
             f1.clean();
             f2.clean();
+            if (f1.streamRouteManager != null) {
+                f1.streamRouteManager.remove();
+                f1.streamRouteManager = null;
+            }
+            if (f2.streamRouteManager != null) {
+                f2.streamRouteManager.remove();
+                f2.streamRouteManager = null;
+            }
+            f1.chartHandler.removeCallbacks(f1.updateChartTask);
+            f2.chartHandler.removeCallbacks(f2.updateChartTask);
         }
 
     }
