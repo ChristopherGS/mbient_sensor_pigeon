@@ -62,6 +62,8 @@ import com.christophergs.mbientbasic.help.HelpOptionAdapter;
 import com.mbientlab.metawear.data.CartesianFloat;
 import com.mbientlab.metawear.module.Accelerometer;
 import com.mbientlab.metawear.module.Bmi160Accelerometer;
+import com.mbientlab.metawear.module.Bmi160Accelerometer.AccRange;
+import com.mbientlab.metawear.module.Bmi160Accelerometer.OutputDataRate;
 import com.mbientlab.metawear.module.Mma8452qAccelerometer;
 
 import java.io.File;
@@ -75,7 +77,7 @@ public class BothFragment extends ThreeAxisChartFragment {
     private static final String STREAM_KEY= "accel_stream";
 
     private Spinner accRangeSelection;
-    private Accelerometer accelModule= null;
+    private Bmi160Accelerometer accelModule= null;
     private int rangeIndex= 0;
     private static final String TAG = "MetaWear";
     OnFragTestListener mCallback;
@@ -162,7 +164,7 @@ public class BothFragment extends ThreeAxisChartFragment {
 
     @Override
     protected void boardReady() throws UnsupportedModuleException{
-        accelModule= mwBoard.getModule(Accelerometer.class);
+        accelModule= mwBoard.getModule(Bmi160Accelerometer.class);
 
         fillRangeAdapter();
     }
@@ -173,19 +175,16 @@ public class BothFragment extends ThreeAxisChartFragment {
     }
 
     public void setup() {
-        accelModule.setOutputDataRate(ACC_FREQ);
-        if (accelModule instanceof Bmi160Accelerometer) {
-            accelModule.setAxisSamplingRange(BMI160_RANGES[rangeIndex]);
-        } else if (accelModule instanceof Mma8452qAccelerometer) {
-            accelModule.setAxisSamplingRange(MMA845Q_RANGES[rangeIndex]);
-        }
+        accelModule.configureAxisSampling()
+            .setOutputDataRate(OutputDataRate.ODR_50_HZ)
+            .setFullScaleRange(AccRange.AR_16G)
+            .commit();
 
         AsyncOperation<RouteManager> routeManagerResult= accelModule.routeData().fromAxes().stream(STREAM_KEY).commit();
         routeManagerResult.onComplete(dataStreamManager);
         routeManagerResult.onComplete(new AsyncOperation.CompletionHandler<RouteManager>() {
             @Override
             public void success(RouteManager result) {
-                final long startTime = System.nanoTime();
                 accelModule.enableAxisSampling();
                 accelModule.start();
                 /*result.subscribe(STREAM_KEY, new RouteManager.MessageHandler() {
@@ -198,8 +197,6 @@ public class BothFragment extends ThreeAxisChartFragment {
                 });*/
             }
         });
-        //accelModule.enableAxisSampling();
-        //accelModule.start();
     }
 
     public String blah(String foo) {

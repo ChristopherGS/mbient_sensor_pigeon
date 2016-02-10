@@ -49,6 +49,8 @@ import com.christophergs.mbientbasic.help.HelpOptionAdapter;
 import com.mbientlab.metawear.data.CartesianFloat;
 import com.mbientlab.metawear.data.Units;
 import com.mbientlab.metawear.module.Gyro;
+import com.mbientlab.metawear.module.Bmi160Gyro;
+import com.mbientlab.metawear.module.Bmi160Gyro.*;
 
 /**
  * Created by etsai on 8/19/2015.
@@ -59,7 +61,7 @@ public class GyroFragmentNew extends ThreeAxisChartFragment {
     private static final String STREAM_KEY= "gyro_stream";
     private static final String TAG = "MetaWear";
 
-    private Gyro gyroModule= null;
+    private Bmi160Gyro gyroModule= null;
     private int rangeIndex= 0;
 
     public GyroFragmentNew() {
@@ -69,7 +71,7 @@ public class GyroFragmentNew extends ThreeAxisChartFragment {
 
     @Override
     protected void boardReady() throws UnsupportedModuleException {
-        gyroModule= mwBoard.getModule(Gyro.class);
+        gyroModule= mwBoard.getModule(Bmi160Gyro.class);
     }
 
     @Override
@@ -109,15 +111,16 @@ public class GyroFragmentNew extends ThreeAxisChartFragment {
 
     @Override
     public void setup() {
-        gyroModule.setOutputDataRate(GYR_ODR);
-        gyroModule.setAngularRateRange(AVAILABLE_RANGES[rangeIndex]);
+        gyroModule.configure()
+                .setOutputDataRate(OutputDataRate.ODR_50_HZ)
+                .setFullScaleRange(FullScaleRange.FSR_500)
+                .commit();
 
         AsyncOperation<RouteManager> routeManagerResult= gyroModule.routeData().fromAxes().stream(STREAM_KEY).commit();
         routeManagerResult.onComplete(dataStreamManager);
         routeManagerResult.onComplete(new AsyncOperation.CompletionHandler<RouteManager>() {
             @Override
             public void success(RouteManager result) {
-                final long startTime_gyro = System.nanoTime();
                 gyroModule.start();
                 /*result.subscribe(STREAM_KEY, new RouteManager.MessageHandler() {
                     @Override
@@ -129,7 +132,6 @@ public class GyroFragmentNew extends ThreeAxisChartFragment {
                 });*/
             }
         });
-        //gyroModule.start();
     }
 
     @Override

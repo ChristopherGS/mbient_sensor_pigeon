@@ -417,12 +417,12 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
         BothFragment f1 = (BothFragment) fragmentManager.findFragmentByTag("com.christophergs.mbientbasic.BothFragment");
         GyroFragmentNew f2 = (GyroFragmentNew) fragmentManager.findFragmentByTag("com.christophergs.mbientbasic.GyroFragmentNew");
         if (position == 1){
-            f1.moveViewToLast();
             f2.moveViewToLast();
-            f1.setup();
+            f1.moveViewToLast();
             f2.setup();
-            f1.chartHandler.postDelayed(f1.updateChartTask, f1.UPDATE_PERIOD);
+            f1.setup();
             f2.chartHandler.postDelayed(f2.updateChartTask, f2.UPDATE_PERIOD);
+            f1.chartHandler.postDelayed(f1.updateChartTask, f1.UPDATE_PERIOD);
         } else {
             f1.chart.setVisibleXRangeMaximum(f1.sampleCount);
             f2.chart.setVisibleXRangeMaximum(f2.sampleCount);
