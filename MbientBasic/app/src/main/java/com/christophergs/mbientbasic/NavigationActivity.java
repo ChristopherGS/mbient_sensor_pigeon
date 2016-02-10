@@ -32,7 +32,7 @@ import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -45,7 +45,6 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.FileProvider;
 import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.View;
@@ -59,7 +58,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.christophergs.mbientbasic.R;
 import com.mbientlab.metawear.MetaWearBleService;
 import com.mbientlab.metawear.MetaWearBoard;
 import com.mbientlab.metawear.MetaWearBoard.ConnectionStateHandler;
@@ -142,6 +140,100 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
 
         @Override
         public void onServiceDisconnected(ComponentName name) { }
+    }
+
+    private class DownloadFilesTask extends AsyncTask<URL, Void, String> {
+        private ProgressDialog pDialog;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pDialog = new ProgressDialog(NavigationActivity.this);
+            pDialog.setMessage("Uploading file");
+            pDialog.setIndeterminate(false);
+            pDialog.setCancelable(false);
+            pDialog.show();
+        }
+
+        @Override
+        protected String doInBackground(URL... my_url) {
+
+            HttpURLConnection urlConnection = null;
+            String boundary = "*****";
+            DataOutputStream outputStream = null;
+            DataInputStream inputStream = null;
+            String pathToOurFile = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/METAWEAR.csv";
+            Log.i(TAG, String.format("save file path: %s", pathToOurFile));
+            String lineEnd = "\r\n";
+            String twoHyphens = "--";
+
+            int bytesRead, bytesAvailable, bufferSize;
+            byte[] buffer;
+            int maxBufferSize = 1 * 1024 * 1024;
+
+            try {
+                URL url = my_url[0];
+                urlConnection = (HttpURLConnection) url.openConnection();
+                FileInputStream fileInputStream = new FileInputStream(new File(pathToOurFile));
+                urlConnection.setRequestMethod("POST");
+                urlConnection.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
+                urlConnection.setRequestProperty("Content-Language", "en-US");
+                urlConnection.setUseCaches(false);
+                urlConnection.setDoInput(true);
+                urlConnection.setDoOutput(true);
+
+                outputStream = new DataOutputStream(urlConnection.getOutputStream());
+                outputStream.writeBytes(twoHyphens + boundary + lineEnd);
+                outputStream.writeBytes("Content-Disposition: form-data;name=\"android_file\";filename=\"" + pathToOurFile + "\"" + lineEnd);
+                outputStream.writeBytes(lineEnd);
+
+                //Send request
+
+                bytesAvailable = fileInputStream.available();
+                bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                buffer = new byte[bufferSize];
+
+                // Read file
+                bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+
+                while (bytesRead > 0) {
+                    outputStream.write(buffer, 0, bufferSize);
+                    bytesAvailable = fileInputStream.available();
+                    bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                    bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+                }
+
+                outputStream.writeBytes(lineEnd);
+                outputStream.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
+
+                // Responses from the server (code and message)
+
+                int responseCode = urlConnection.getResponseCode();
+                String responseText = urlConnection.getResponseMessage();
+                Log.i(TAG, responseText.toString());
+
+                fileInputStream.close();
+                outputStream.flush();
+                outputStream.close();
+
+            } catch (Exception e) {
+                Log.e(TAG, "file send error", e);
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+
+            }
+            return "Uploaded";
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            pDialog.dismiss();
+            Log.i(TAG, String.valueOf(result));
+            toastIt(result);
+        }
+
     }
 
     private final String RECONNECT_DIALOG_TAG= "reconnect_dialog_tag";
@@ -485,81 +577,15 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
     }
 
     public void sendFile() {
-        //TODO LOADING DIALOG toastIt("attempt to send file");
-
-        toastIt("Now sending file to server");
-        HttpURLConnection urlConnection = null;
-        String boundary = "*****";
-        DataOutputStream outputStream = null;
-        DataInputStream inputStream = null;
-        String pathToOurFile = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/METAWEAR.csv";
-        Log.i(TAG, String.format("save file path: %s", pathToOurFile));
-        String lineEnd = "\r\n";
-        String twoHyphens = "--";
-
-        int bytesRead, bytesAvailable, bufferSize;
-        byte[] buffer;
-        int maxBufferSize = 1 * 1024 * 1024;
-
+        toastIt("Begin sending file to server");
         try {
             URL url = new URL("http://christophergs.pythonanywhere.com/api/csv");
-
-            urlConnection = (HttpURLConnection) url.openConnection();
-
-            FileInputStream fileInputStream = new FileInputStream(new File(pathToOurFile));
-
-
-            urlConnection.setRequestMethod("POST");
-            urlConnection.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
-            urlConnection.setRequestProperty("Content-Language", "en-US");
-            urlConnection.setUseCaches(false);
-            urlConnection.setDoInput(true);
-            urlConnection.setDoOutput(true);
-
-            outputStream = new DataOutputStream(urlConnection.getOutputStream());
-            outputStream.writeBytes(twoHyphens + boundary + lineEnd);
-            outputStream.writeBytes("Content-Disposition: form-data;name=\"android_file\";filename=\"" + pathToOurFile + "\"" + lineEnd);
-            outputStream.writeBytes(lineEnd);
-
-            //Send request
-
-            bytesAvailable = fileInputStream.available();
-            bufferSize = Math.min(bytesAvailable, maxBufferSize);
-            buffer = new byte[bufferSize];
-
-            // Read file
-            bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-
-            while (bytesRead > 0) {
-                outputStream.write(buffer, 0, bufferSize);
-                bytesAvailable = fileInputStream.available();
-                bufferSize = Math.min(bytesAvailable, maxBufferSize);
-                bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-            }
-
-            outputStream.writeBytes(lineEnd);
-            outputStream.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
-
-            // Responses from the server (code and message)
-
-            int responseCode = urlConnection.getResponseCode();
-            String responseText = urlConnection.getResponseMessage();
-            Log.i(TAG, responseText.toString());
-
-            fileInputStream.close();
-            outputStream.flush();
-            outputStream.close();
-            toastIt("File sending complete");
-
+            new DownloadFilesTask().execute(url);
         } catch (Exception e) {
             Log.e(TAG, "file send error", e);
             toastIt("File sending error!");
-        } finally {
-            if (urlConnection != null) {
-                urlConnection.disconnect();
-            }
-
         }
+
     }
 
     @Override

@@ -243,6 +243,7 @@
   <string name="label_start_sample">Start Sampling</string>
   <string name="label_clear">Clear</string>
   <string name="label_save">Save</string>
+  <string name="label_analyze">Analyze</string>
   <string name="label_yes">Yes</string>
   <string name="label_no">No</string>
   <string name="label_sodium">N/A</string>

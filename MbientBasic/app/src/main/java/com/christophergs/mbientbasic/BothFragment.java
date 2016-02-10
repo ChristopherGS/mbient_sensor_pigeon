@@ -131,7 +131,7 @@ public class BothFragment extends ThreeAxisChartFragment {
         });
 
         Button saveButton= (Button) view.findViewById(R.id.layout_two_button_right);
-        saveButton.setText(R.string.label_save);
+        saveButton.setText(R.string.label_analyze);
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
