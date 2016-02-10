@@ -55,7 +55,7 @@ import com.mbientlab.metawear.module.Gyro;
  */
 public class GyroFragmentNew extends ThreeAxisChartFragment {
     private static final float[] AVAILABLE_RANGES= {125.f, 250.f, 500.f, 1000.f, 2000.f};
-    private static final float INITIAL_RANGE= 125.f, GYR_ODR= 25.f;
+    private static final float INITIAL_RANGE= 125.f, GYR_ODR= 50.f;
     private static final String STREAM_KEY= "gyro_stream";
     private static final String TAG = "MetaWear";
 

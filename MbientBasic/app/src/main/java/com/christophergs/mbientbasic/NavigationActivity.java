@@ -24,6 +24,7 @@
 
 package com.christophergs.mbientbasic;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothDevice;
@@ -33,8 +34,10 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -64,7 +67,12 @@ import com.mbientlab.metawear.UnsupportedModuleException;
 import com.christophergs.mbientbasic.ModuleFragmentBase.FragmentBus;
 import com.mbientlab.metawear.module.Debug;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -253,6 +261,10 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
 
         btDevice= getIntent().getParcelableExtra(EXTRA_BT_DEVICE);
         getApplicationContext().bindService(new Intent(this, MetaWearBleService.class), this, BIND_AUTO_CREATE);
+
+        //DODGY HACK - SHOULD USE ASYNC TASK INSTEAD
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
     }
 
     @Override
@@ -435,7 +447,19 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
         FragmentManager fragmentManager = getSupportFragmentManager();
         BothFragment f1 = (BothFragment) fragmentManager.findFragmentByTag("com.christophergs.mbientbasic.BothFragment");
         GyroFragmentNew f2 = (GyroFragmentNew) fragmentManager.findFragmentByTag("com.christophergs.mbientbasic.GyroFragmentNew");
-        String filename = f1.saveData();
+
+        String delete_filename = String.format("METAWEAR.csv");
+        File path = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOWNLOADS), delete_filename);
+
+        //delete the csv file if it already exists (will be from older recordings)
+        f1.prep(path);
+        String filename = f1.saveData(false); //f1 is the accelerometer, we keep the header
+        String filename2 = f2.saveData(true); //f2 is the gyro, we remove the header
+
+        sendFile();
+
+
 
         /*
         if (filename != null) {
@@ -460,6 +484,84 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
 
     }
 
+    public void sendFile() {
+        //TODO LOADING DIALOG toastIt("attempt to send file");
+
+        toastIt("Now sending file to server");
+        HttpURLConnection urlConnection = null;
+        String boundary = "*****";
+        DataOutputStream outputStream = null;
+        DataInputStream inputStream = null;
+        String pathToOurFile = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/METAWEAR.csv";
+        Log.i(TAG, String.format("save file path: %s", pathToOurFile));
+        String lineEnd = "\r\n";
+        String twoHyphens = "--";
+
+        int bytesRead, bytesAvailable, bufferSize;
+        byte[] buffer;
+        int maxBufferSize = 1 * 1024 * 1024;
+
+        try {
+            URL url = new URL("http://christophergs.pythonanywhere.com/api/csv");
+
+            urlConnection = (HttpURLConnection) url.openConnection();
+
+            FileInputStream fileInputStream = new FileInputStream(new File(pathToOurFile));
+
+
+            urlConnection.setRequestMethod("POST");
+            urlConnection.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
+            urlConnection.setRequestProperty("Content-Language", "en-US");
+            urlConnection.setUseCaches(false);
+            urlConnection.setDoInput(true);
+            urlConnection.setDoOutput(true);
+
+            outputStream = new DataOutputStream(urlConnection.getOutputStream());
+            outputStream.writeBytes(twoHyphens + boundary + lineEnd);
+            outputStream.writeBytes("Content-Disposition: form-data;name=\"android_file\";filename=\"" + pathToOurFile + "\"" + lineEnd);
+            outputStream.writeBytes(lineEnd);
+
+            //Send request
+
+            bytesAvailable = fileInputStream.available();
+            bufferSize = Math.min(bytesAvailable, maxBufferSize);
+            buffer = new byte[bufferSize];
+
+            // Read file
+            bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+
+            while (bytesRead > 0) {
+                outputStream.write(buffer, 0, bufferSize);
+                bytesAvailable = fileInputStream.available();
+                bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+            }
+
+            outputStream.writeBytes(lineEnd);
+            outputStream.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
+
+            // Responses from the server (code and message)
+
+            int responseCode = urlConnection.getResponseCode();
+            String responseText = urlConnection.getResponseMessage();
+            Log.i(TAG, responseText.toString());
+
+            fileInputStream.close();
+            outputStream.flush();
+            outputStream.close();
+            toastIt("File sending complete");
+
+        } catch (Exception e) {
+            Log.e(TAG, "file send error", e);
+            toastIt("File sending error!");
+        } finally {
+            if (urlConnection != null) {
+                urlConnection.disconnect();
+            }
+
+        }
+    }
+
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
         mwBoard= ((MetaWearBleService.LocalBinder) service).getMetaWearBoard(btDevice);
@@ -469,5 +571,9 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
     @Override
     public void onServiceDisconnected(ComponentName name) {
 
+    }
+
+    private void toastIt(String msg) {
+        Toast.makeText(NavigationActivity.this, msg, Toast.LENGTH_SHORT).show();
     }
 }

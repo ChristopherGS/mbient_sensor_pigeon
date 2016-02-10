@@ -34,6 +34,7 @@ package com.christophergs.mbientbasic;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Environment;
+import android.util.Log;
 
 import com.christophergs.mbientbasic.SensorFragment;
 import com.github.mikephil.charting.data.Entry;
@@ -58,6 +59,7 @@ public abstract class ThreeAxisChartFragment extends SensorFragment {
     private final ArrayList<Entry> xAxisData= new ArrayList<>(), yAxisData= new ArrayList<>(), zAxisData= new ArrayList<>();
     private final String dataType, streamKey;
     private final float samplePeriod;
+    private static final String TAG = "MetaWear";
     protected final AsyncOperation.CompletionHandler<RouteManager> dataStreamManager= new AsyncOperation.CompletionHandler<RouteManager>() {
         @Override
         public void success(RouteManager result) {
@@ -87,26 +89,42 @@ public abstract class ThreeAxisChartFragment extends SensorFragment {
         this.samplePeriod= 1 / sampleFreq;
     }
 
+
+    public void prep(File path) {
+        boolean is_deleted = path.delete();
+        Log.i(TAG, "deleted: " + is_deleted);
+    }
+
     @Override
-    protected String saveData() {
-        final String CSV_HEADER = String.format("time,x-%s,y-%s,z-%s%n", dataType, dataType, dataType);
-        String filename = String.format("%s_%tY%<tm%<td-%<tH%<tM%<tS%<tL.csv", getActivity().getApplicationContext().getString(sensorResId), Calendar.getInstance());
+    protected String saveData(boolean removeHeader) {
+        final String CSV_HEADER = String.format("SENSOR_TYPE,x_%s,y_%s,z_%s,Time_since_start,TIMESTAMP,%n", dataType, dataType, dataType);
+        //String filename = String.format("%s_METAWEAR.csv", getActivity().getApplicationContext().getString(sensorResId));
+        String filename = String.format("METAWEAR.csv");
         File path = new File(Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_DOWNLOADS), filename);
-
+        String sensorInfo = getActivity().getApplicationContext().getString(sensorResId);
         OutputStream fos;
+
         try {
             fos = new BufferedOutputStream(new FileOutputStream(path, true));
-            fos.write(CSV_HEADER.getBytes());
+
+            if(removeHeader) {
+                Log.i(TAG, "not adding header");
+            } else {
+                fos.write(CSV_HEADER.getBytes());
+            }
 
             LineData data = chart.getLineData();
             LineDataSet xSpinDataSet = data.getDataSetByIndex(0), ySpinDataSet = data.getDataSetByIndex(1),
                     zSpinDataSet = data.getDataSetByIndex(2);
             for (int i = 0; i < data.getXValCount(); i++) {
-                fos.write(String.format("%.3f,%.3f,%.3f,%.3f%n", i * samplePeriod,
+                fos.write(String.format("%s,%.3f,%.3f,%.3f,%.3f,%tY%<tm%<td-%<tH%<tM%<tS%<tL,%n",
+                        sensorInfo,
                         xSpinDataSet.getEntryForXIndex(i).getVal(),
                         ySpinDataSet.getEntryForXIndex(i).getVal(),
-                        zSpinDataSet.getEntryForXIndex(i).getVal()).getBytes());
+                        zSpinDataSet.getEntryForXIndex(i).getVal(),
+                        i * samplePeriod,
+                        Calendar.getInstance()).getBytes());
             }
             fos.close();
             return filename;

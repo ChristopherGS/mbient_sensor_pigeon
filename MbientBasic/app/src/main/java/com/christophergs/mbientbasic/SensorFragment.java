@@ -168,7 +168,7 @@ public abstract class SensorFragment extends ModuleFragmentBase {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String filename = saveData();
+                String filename = saveData(false);
 
                 if (filename != null) {
                     File dataFile = getActivity().getFileStreamPath(filename);
@@ -202,6 +202,6 @@ public abstract class SensorFragment extends ModuleFragmentBase {
 
     protected abstract void setup();
     protected abstract void clean();
-    protected abstract String saveData();
+    protected abstract String saveData(boolean removeHeader);
     protected abstract void resetData(boolean clearData);
 }
