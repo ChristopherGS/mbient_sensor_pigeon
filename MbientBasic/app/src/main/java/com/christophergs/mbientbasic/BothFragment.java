@@ -140,8 +140,8 @@ public class BothFragment extends ThreeAxisChartFragment {
         });
 
         Button chartButton= (Button) view.findViewById(R.id.layout_two_button_center);
-        saveButton.setText(R.string.label_pie);
-        saveButton.setOnClickListener(new View.OnClickListener() {
+        chartButton.setText(R.string.label_pie);
+        chartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mCallback.onPieButtonPressed(1);

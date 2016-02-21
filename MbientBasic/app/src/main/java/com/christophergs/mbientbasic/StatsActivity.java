@@ -52,13 +52,15 @@ public class StatsActivity extends AppCompatActivity {
     private SeekBar mSeekBarX, mSeekBarY;
     private float[] yData = { 5, 10, 15, 30 };
     private String[] xData = { "Mount", "Side Control", "Back Control", "Closed Guard" };
-    
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         PieChart mChart = new PieChart(getApplicationContext());
         setContentView(mChart);
+        mChart.setDescription("Grappling Position Analysis");
+        //addData(); //causes null pointer error
 
         ArrayList<Entry> yVals1 = new ArrayList<Entry>();
 
@@ -70,17 +72,45 @@ public class StatsActivity extends AppCompatActivity {
         for (int i = 0; i < xData.length; i++)
             xVals.add(xData[i]);
 
+        // add many colors
+        ArrayList<Integer> colors = new ArrayList<Integer>();
+
+        for (int c : ColorTemplate.VORDIPLOM_COLORS)
+            colors.add(c);
+
+        for (int c : ColorTemplate.JOYFUL_COLORS)
+            colors.add(c);
+
+        for (int c : ColorTemplate.COLORFUL_COLORS)
+            colors.add(c);
+
+        for (int c : ColorTemplate.LIBERTY_COLORS)
+            colors.add(c);
+
+        for (int c : ColorTemplate.PASTEL_COLORS)
+            colors.add(c);
+
+        colors.add(ColorTemplate.getHoloBlue());
+
+
         // create pie data set
-        PieDataSet dataSet = new PieDataSet(yVals1, "Market Share");
+        PieDataSet dataSet = new PieDataSet(yVals1, "Time Percentage");
         dataSet.setSliceSpace(3);
         dataSet.setSelectionShift(5);
+        dataSet.setColors(colors);
 
         PieData data = new PieData(xVals, dataSet);
 
         mChart.setData(data);
 
+        mChart.animateY(2000);
+
         // update pie chart
         mChart.invalidate();
+    }
+
+    private void addData(){
+
 
     }
 

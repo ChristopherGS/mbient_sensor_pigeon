@@ -172,6 +172,9 @@ public abstract class SensorFragment extends ModuleFragmentBase {
             }
         });
 
+        Button chartButton= (Button) view.findViewById(R.id.layout_two_button_center);
+        chartButton.setText(R.string.label_pie);
+
         Button saveButton= (Button) view.findViewById(R.id.layout_two_button_right);
         saveButton.setText(R.string.label_save);
         saveButton.setOnClickListener(new View.OnClickListener() {

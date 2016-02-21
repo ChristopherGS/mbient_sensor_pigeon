@@ -199,7 +199,7 @@
   <string name="value_gpio_pull_none">None</string>
   <string name="value_gpio_output_set">Set</string>
   <string name="value_gpio_output_clear">Clear</string>
-    <string name="label_pie">Chart</string>
+  <string name="label_pie">Motion</string>
   <string name="label_device_information">Device Information</string>
   <string name="label_haptic_start_motor">Start Motor</string>
   <string name="label_haptic_start_buzzer">Start Buzzer</string>
