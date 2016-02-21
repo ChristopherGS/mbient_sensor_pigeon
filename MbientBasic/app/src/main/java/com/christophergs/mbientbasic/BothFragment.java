@@ -139,6 +139,15 @@ public class BothFragment extends ThreeAxisChartFragment {
             }
         });
 
+        Button chartButton= (Button) view.findViewById(R.id.layout_two_button_center);
+        saveButton.setText(R.string.label_pie);
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mCallback.onPieButtonPressed(1);
+            }
+        });
+
         Button clearButton= (Button) view.findViewById(R.id.layout_two_button_left);
         clearButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -228,5 +237,6 @@ public class BothFragment extends ThreeAxisChartFragment {
         public void onStartButtonPressed(int position);
         public void onSaveButtonPressed(int position);
         public void onClearButtonPressed(int position);
+        public void onPieButtonPressed(int position);
     }
 }

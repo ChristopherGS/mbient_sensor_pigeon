@@ -36,6 +36,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.FileProvider;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,6 +48,7 @@ import android.widget.Switch;
 import com.christophergs.mbientbasic.ModuleFragmentBase;
 import com.christophergs.mbientbasic.R;
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.YAxis;
 import com.mbientlab.metawear.RouteManager;
 
@@ -62,7 +64,9 @@ public abstract class SensorFragment extends ModuleFragmentBase {
 
     protected final ArrayList<String> chartXValues= new ArrayList<>();
     protected LineChart chart;
+    protected PieChart pchart;
     protected int sampleCount;
+    private static final String TAG = "MetaWear";
 
     protected float min, max;
     protected RouteManager streamRouteManager= null;
@@ -84,6 +88,7 @@ public abstract class SensorFragment extends ModuleFragmentBase {
 
     protected SensorFragment(int sensorResId, int layoutId, float min, float max) {
         super(sensorResId);
+        Log.i(TAG, String.format("sensor res ID: %d", sensorResId));
         this.layoutId= layoutId;
         this.min= min;
         this.max= max;
@@ -128,21 +133,25 @@ public abstract class SensorFragment extends ModuleFragmentBase {
     public void onViewCreated(final View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        chart = (LineChart) view.findViewById(R.id.data_chart);
+        if(sensorResId != 2131165359) {
+            chart = (LineChart) view.findViewById(R.id.data_chart);
 
-        initializeChart();
-        resetData(false);
-        chart.invalidate();
-        chart.setDescription(null);
+            initializeChart();
+            resetData(false);
+            chart.invalidate();
+            chart.setDescription(null);
 
-        Button clearButton= (Button) view.findViewById(R.id.layout_two_button_left);
-        clearButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                refreshChart(true);
-            }
-        });
-        clearButton.setText(R.string.label_clear);
+            Button clearButton = (Button) view.findViewById(R.id.layout_two_button_left);
+            clearButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    refreshChart(true);
+                }
+            });
+            clearButton.setText(R.string.label_clear);
+        } else {
+            Log.i(TAG, "Pie Chart");
+        }
 
         ((Switch) view.findViewById(R.id.sample_control)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override

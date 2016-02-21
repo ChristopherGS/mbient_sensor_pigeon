@@ -75,12 +75,14 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class NavigationActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, BothFragment.OnFragTestListener, ServiceConnection, FragmentBus {
+public class NavigationActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
+        BothFragment.OnFragTestListener, MotionFragment.OnFragmentInteractionListener, ServiceConnection, FragmentBus {
     public static final String EXTRA_BT_DEVICE= "EXTRA_BT_DEVICE";
-
     private final static String FRAGMENT_KEY= "FRAGMENT_KEY";
     private static final Map<Integer, Class<? extends ModuleFragmentBase>> FRAGMENT_CLASSES;
     private static final String TAG = "MetaWear";
+
+    public static final int REQUEST_START_APP= 1;
 
     static {
         Map<Integer, Class<? extends ModuleFragmentBase>> tempMap= new LinkedHashMap<>();
@@ -90,8 +92,11 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
         tempMap.put(R.id.nav_gyro_new, GyroFragmentNew.class);
         tempMap.put(R.id.nav_both, BothFragment.class);
         tempMap.put(R.id.nav_settings, SettingsFragment.class);
+        tempMap.put(R.id.nav_settings, MotionFragment.class);
         FRAGMENT_CLASSES= Collections.unmodifiableMap(tempMap);
     }
+
+
 
     public static class ReconnectDialogFragment extends DialogFragment implements  ServiceConnection {
         private static final String KEY_BLUETOOTH_DEVICE= "KEY_BLUETOOTH_DEVICE";
@@ -442,7 +447,8 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
         //we keep tag 1 as the per the mbient code and make tag 2 the adjusted gyro,
         //knowing that the BothFragment is a copy of accelerometer with stream adjustments
         String fragmentTag= FRAGMENT_CLASSES.get(id).getCanonicalName();
-        String fragmentTag2= FRAGMENT_CLASSES.get(2131624123).getCanonicalName(); //Gyro New
+        String fragmentTag2= FRAGMENT_CLASSES.get(2131624129).getCanonicalName(); //Gyro New
+        //2131165353
 
 
         Log.i(TAG, String.format("Fragment Tag: %s", fragmentTag));
@@ -470,7 +476,7 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
 
             if (currentFragment2 == null) {
                 try {
-                    currentFragment2= FRAGMENT_CLASSES.get(2131624123).getConstructor().newInstance();
+                    currentFragment2= FRAGMENT_CLASSES.get(2131624129).getConstructor().newInstance();//new gyro
                 } catch (Exception e) {
                     throw new RuntimeException("Cannot instantiate fragment", e);
                 }
@@ -585,6 +591,27 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
             Log.e(TAG, "file send error", e);
             toastIt("File sending error!");
         }
+
+    }
+
+    public void onPieButtonPressed(int position) {
+        Log.i(TAG, String.format("CLEAR TEST: %d", position));
+        /*MotionFragment motionFragment = new MotionFragment();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        if (currentFragment != null) {
+            fragmentTransaction.detach(currentFragment);
+        }
+        fragmentTransaction.add(android.R.id.content, motionFragment);
+        fragmentTransaction.commit();*/
+
+        Intent navActivityIntent = new Intent(NavigationActivity.this, StatsActivity.class);
+        navActivityIntent.putExtra(NavigationActivity.EXTRA_BT_DEVICE, btDevice);
+        startActivityForResult(navActivityIntent, REQUEST_START_APP);
+    }
+
+    @Override
+    public void onPieSetup() {
 
     }
 
