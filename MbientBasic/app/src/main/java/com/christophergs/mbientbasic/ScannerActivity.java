@@ -1,7 +1,5 @@
 package com.christophergs.mbientbasic;
 
-
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothDevice;
 import android.content.ComponentName;
@@ -11,15 +9,12 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 
 import com.mbientlab.bletoolbox.scanner.BleScannerFragment;
 import com.mbientlab.bletoolbox.scanner.BleScannerFragment.*;
 import com.mbientlab.metawear.MetaWearBleService;
 import com.mbientlab.metawear.MetaWearBoard;
 
-import java.util.Scanner;
 import java.util.UUID;
 
 public class ScannerActivity extends AppCompatActivity implements ScannerCommunicationBus, ServiceConnection {
@@ -42,6 +37,14 @@ public class ScannerActivity extends AppCompatActivity implements ScannerCommuni
         setContentView(R.layout.activity_scanner);
 
         getApplicationContext().bindService(new Intent(this, MetaWearBleService.class), this, BIND_AUTO_CREATE);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        ///< Unbind the service when the activity is destroyed
+        getApplicationContext().unbindService(this);
     }
 
     @Override
@@ -76,15 +79,9 @@ public class ScannerActivity extends AppCompatActivity implements ScannerCommuni
             @Override
             public void connected() {
                 connectDialog.dismiss();
-                Intent recordActivityIntent = new Intent(ScannerActivity.this, RecordActivity.class);
-                recordActivityIntent.putExtra(RecordActivity.EXTRA_BT_DEVICE, btDevice);
-                ScannerActivity.this.startActivity(recordActivityIntent);
-                //Intent navigationActivityIntent = new Intent(ScannerActivity.this, NavigationActivity.class);
-                //navigationActivityIntent.putExtra(NavigationActivity.EXTRA_BT_DEVICE, btDevice);
-                //ScannerActivity.this.startActivity(navigationActivityIntent);
-                //Intent navActivityIntent = new Intent(ScannerActivity.this, NavigationActivity.class);
-                //navActivityIntent.putExtra(NavigationActivity.EXTRA_BT_DEVICE, btDevice);
-                //startActivityForResult(navActivityIntent, REQUEST_START_APP);
+                Intent navActivityIntent = new Intent(ScannerActivity.this, NavigationActivity.class);
+                navActivityIntent.putExtra(NavigationActivity.EXTRA_BT_DEVICE, btDevice);
+                startActivityForResult(navActivityIntent, REQUEST_START_APP);
             }
 
             @Override
@@ -98,14 +95,6 @@ public class ScannerActivity extends AppCompatActivity implements ScannerCommuni
             }
         });
         mwBoard.connect();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        ///< Unbind the service when the activity is destroyed
-        getApplicationContext().unbindService(this);
     }
 
     @Override
@@ -128,5 +117,4 @@ public class ScannerActivity extends AppCompatActivity implements ScannerCommuni
     public long getScanDuration() {
         return 10000L;
     }
-
 }
