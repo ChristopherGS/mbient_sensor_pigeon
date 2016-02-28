@@ -57,12 +57,12 @@ import com.mbientlab.metawear.module.Bmi160Gyro.*;
  */
 public class GyroFragmentNew extends ThreeAxisChartFragment {
     private static final float[] AVAILABLE_RANGES= {125.f, 250.f, 500.f, 1000.f, 2000.f};
-    private static final float INITIAL_RANGE= 125.f, GYR_ODR= 50.f;
+    private static final float INITIAL_RANGE= 2000.f, GYR_ODR= 25.f;
     private static final String STREAM_KEY= "gyro_stream";
     private static final String TAG = "MetaWear";
 
     private Bmi160Gyro gyroModule= null;
-    private int rangeIndex= 0;
+    private int rangeIndex= 4;
 
     public GyroFragmentNew() {
         super("rotation", R.layout.fragment_sensor_config_spinner2,
@@ -112,8 +112,8 @@ public class GyroFragmentNew extends ThreeAxisChartFragment {
     @Override
     public void setup() {
         gyroModule.configure()
-                .setOutputDataRate(OutputDataRate.ODR_50_HZ)
-                .setFullScaleRange(FullScaleRange.FSR_500)
+                .setOutputDataRate(OutputDataRate.ODR_25_HZ)
+                .setFullScaleRange(FullScaleRange.FSR_2000)
                 .commit();
 
         AsyncOperation<RouteManager> routeManagerResult= gyroModule.routeData().fromAxes().stream(STREAM_KEY).commit();

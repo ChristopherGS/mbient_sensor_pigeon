@@ -41,6 +41,7 @@ import android.os.Bundle;
 import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.view.View;
+import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -73,14 +74,16 @@ import java.io.File;
  */
 public class BothFragment extends ThreeAxisChartFragment {
     private static final float[] MMA845Q_RANGES= {2.f, 4.f, 8.f}, BMI160_RANGES= {2.f, 4.f, 8.f, 16.f};
-    private static final float INITIAL_RANGE= 2.f, ACC_FREQ= 50.f;
+    private static final float INITIAL_RANGE= 16.f, ACC_FREQ= 25.f;
     private static final String STREAM_KEY= "accel_stream";
 
     private Spinner accRangeSelection;
     private Bmi160Accelerometer accelModule= null;
-    private int rangeIndex= 0;
+    private int rangeIndex= 3;
     private static final String TAG = "MetaWear";
     OnFragTestListener mCallback;
+
+
 
     public BothFragment() {
         super("acceleration", R.layout.fragment_sensor_config_spinner,
@@ -185,7 +188,7 @@ public class BothFragment extends ThreeAxisChartFragment {
 
     public void setup() {
         accelModule.configureAxisSampling()
-            .setOutputDataRate(OutputDataRate.ODR_50_HZ)
+            .setOutputDataRate(OutputDataRate.ODR_25_HZ)
             .setFullScaleRange(AccRange.AR_16G)
             .commit();
 
@@ -223,6 +226,7 @@ public class BothFragment extends ThreeAxisChartFragment {
         ArrayAdapter<CharSequence> spinnerAdapter= null;
         if (accelModule instanceof Bmi160Accelerometer) {
             spinnerAdapter= ArrayAdapter.createFromResource(getActivity().getApplicationContext(), R.array.values_bmi160_acc_range, android.R.layout.simple_spinner_item);
+            spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         } else if (accelModule instanceof Mma8452qAccelerometer) {
             spinnerAdapter= ArrayAdapter.createFromResource(getActivity().getApplicationContext(), R.array.values_mma8452q_acc_range, android.R.layout.simple_spinner_item);
         }
@@ -230,6 +234,7 @@ public class BothFragment extends ThreeAxisChartFragment {
         if (spinnerAdapter != null) {
             spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             accRangeSelection.setAdapter(spinnerAdapter);
+            accRangeSelection.setSelection(rangeIndex);
         }
     }
 

@@ -87,6 +87,7 @@ public abstract class ThreeAxisChartFragment extends SensorFragment {
         this.dataType= dataType;
         this.streamKey= streamKey;
         this.samplePeriod= 1 / sampleFreq;
+
     }
 
 

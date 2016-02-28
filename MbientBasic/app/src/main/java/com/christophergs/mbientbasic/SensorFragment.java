@@ -89,6 +89,7 @@ public abstract class SensorFragment extends ModuleFragmentBase {
     protected SensorFragment(int sensorResId, int layoutId, float min, float max) {
         super(sensorResId);
         Log.i(TAG, String.format("sensor res ID: %d", sensorResId));
+        Log.i(TAG, String.format("INITIAL RANGE: %s", max));
         this.layoutId= layoutId;
         this.min= min;
         this.max= max;
