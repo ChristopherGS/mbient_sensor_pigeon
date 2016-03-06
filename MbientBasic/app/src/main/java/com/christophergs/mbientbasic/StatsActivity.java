@@ -45,6 +45,7 @@ public class StatsActivity extends AppCompatActivity {
     //metawear variables
     //public static final String EXTRA_BT_DEVICE= "EXTRA_BT_DEVICE";
     //private BluetoothDevice btDevice= null;
+    public static String EXPERIMENT_ID = null;
 
     //MPChart variables
     private RelativeLayout mainLayout;
@@ -58,6 +59,8 @@ public class StatsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         PieChart mChart = new PieChart(getApplicationContext());
+        EXPERIMENT_ID = getIntent().getExtras().getString("EXPERIMENT");
+        Log.i(TAG, String.format("Experiment ID: %s", EXPERIMENT_ID));
         setContentView(mChart);
         mChart.setDescription("Grappling Position Analysis");
         //addData(); //causes null pointer error
