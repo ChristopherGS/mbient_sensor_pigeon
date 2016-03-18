@@ -88,7 +88,7 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
     private final static String FRAGMENT_KEY= "FRAGMENT_KEY";
     private static final Map<Integer, Class<? extends ModuleFragmentBase>> FRAGMENT_CLASSES;
     private static final String TAG = "MetaWear";
-    public String EXPERIMENT_ID = null;
+    public String EXPERIMENT_ID = "105"; //test 1
 
     public static final int REQUEST_START_APP= 1;
 

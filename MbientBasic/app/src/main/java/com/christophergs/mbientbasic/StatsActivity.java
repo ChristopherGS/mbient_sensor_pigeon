@@ -44,6 +44,7 @@ import com.mbientlab.metawear.MetaWearBleService;
 import org.apache.http.HttpStatus;
 import org.json.JSONObject;
 
+
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -71,7 +72,9 @@ public class StatsActivity extends AppCompatActivity {
     private PieChart mChart;
     private SeekBar mSeekBarX, mSeekBarY;
     private float[] yData = { 5, 10, 15, 30 };
-    private String[] xData = { "Mount", "Side Control", "Back Control", "Closed Guard" };
+    private String[] xData = { "Your Mount", "Your Side Control", "Your Back Control", "Your Closed Guard",
+                                "Opponent Mount", "Opponent Side Control", "Opponent Back Control", "Opponent Closed Guard",
+                                "Other"};
 
 
     @Override
@@ -82,7 +85,7 @@ public class StatsActivity extends AppCompatActivity {
         Log.i(TAG, String.format("Experiment ID: %s", EXPERIMENT_ID));
         setContentView(mChart);
         mChart.setDescription("Grappling Position Analysis");
-        getAnalysis();
+
         //addData(); //causes null pointer error
 
         ArrayList<Entry> yVals1 = new ArrayList<Entry>();
@@ -130,12 +133,10 @@ public class StatsActivity extends AppCompatActivity {
 
         // update pie chart
         mChart.invalidate();
+
+        getAnalysis();
     }
 
-    private void addData(){
-
-
-    }
 
     public void getAnalysis() {
         toastIt("Getting analysis from server");
@@ -149,7 +150,46 @@ public class StatsActivity extends AppCompatActivity {
 
     }
 
-    public class DownloadFilesTask extends AsyncTask<URL, Void, String> {
+    public float[] updateYData(JSONObject serverResponse) {
+        try {
+            Log.i(TAG, String.format("updating Y data with: %s", serverResponse));
+            String ymount = (String) serverResponse.getString("ymount");
+            String ybc = (String) serverResponse.getString("ybc");
+            String ycg = (String) serverResponse.getString("ycg");
+            String ysc = (String) serverResponse.getString("ysc");
+            String omount = (String) serverResponse.getString("omount");
+            String osc = (String) serverResponse.getString("osc");
+            String obc = (String) serverResponse.getString("obc");
+            String ocg = (String) serverResponse.getString("ocg");
+            String OTHER = (String) serverResponse.getString("OTHER");
+            Log.i(TAG, String.format("ymount: %s", ymount));
+
+            float ymount_F = Float.valueOf(ymount.trim()).floatValue();
+            float ybc_F = Float.valueOf(ybc.trim()).floatValue();
+            float ycg_F = Float.valueOf(ycg.trim()).floatValue();
+            float ysc_F = Float.valueOf(ysc.trim()).floatValue();
+            float omount_F = Float.valueOf(omount.trim()).floatValue();
+            float osc_F = Float.valueOf(osc.trim()).floatValue();
+            float obc_F = Float.valueOf(obc.trim()).floatValue();
+            float ocg_F = Float.valueOf(ocg.trim()).floatValue();
+            float OTHER_F = Float.valueOf(OTHER.trim()).floatValue();
+
+            System.out.println("float ymount = " + ymount_F);
+            Log.i(TAG, String.valueOf(ymount_F));
+
+            yData = new float[] { ymount_F, ysc_F, ybc_F, ycg_F, omount_F, osc_F, obc_F, ocg_F, OTHER_F };
+
+        } catch (Exception e) {
+            Log.e(TAG, "error getting chart data", e);
+        }
+
+        for (int i = 0; i < yData.length; i++){
+            Log.i(TAG, String.format("backup value2: %s", yData[i]));
+        }
+        return yData;
+    }
+
+    public class DownloadFilesTask extends AsyncTask<URL, JSONObject, String> {
         private ProgressDialog pDialog;
 
         @Override
@@ -190,14 +230,23 @@ public class StatsActivity extends AppCompatActivity {
 
                 BufferedReader reader = new BufferedReader(new InputStreamReader(response));
                 StringBuilder sb = new StringBuilder();
+                ArrayList<String> testArray = new ArrayList<String>();
                 String line = "";
                 while ((line = reader.readLine()) != null) {
                     sb.append(line + "\n");
+                    testArray.add(line);
                 }
                 serverResponseMessage = sb.toString();
                 Log.i(TAG, String.format("full server response: %s", serverResponseMessage));
-                response.close();
+                Log.i(TAG, String.format("testArray: %s", testArray));
+                Log.i(TAG, String.format("responseText: %s", responseText));
 
+                JSONObject recvdjson = new JSONObject(serverResponseMessage);
+                Log.i(TAG, String.format("JSON: %s", recvdjson));
+                //float[] backup = updateYData(recvdjson);
+                //Log.i(TAG, String.format("backup value: %s", backup));
+                publishProgress(recvdjson);
+                response.close();
             } catch (Exception e) {
                 Log.e(TAG, "Analysis error", e);
             } finally {
@@ -208,6 +257,85 @@ public class StatsActivity extends AppCompatActivity {
             }
 
             return responseText;
+        }
+
+        protected void onProgressUpdate(JSONObject serverResponse) {
+            try {
+                Log.i(TAG, String.format("updating Y data with: %s", serverResponse));
+                String ymount = (String) serverResponse.getString("ymount");
+                String ybc = (String) serverResponse.getString("ybc");
+                String ycg = (String) serverResponse.getString("ycg");
+                String ysc = (String) serverResponse.getString("ysc");
+                String omount = (String) serverResponse.getString("omount");
+                String osc = (String) serverResponse.getString("osc");
+                String obc = (String) serverResponse.getString("obc");
+                String ocg = (String) serverResponse.getString("ocg");
+                String OTHER = (String) serverResponse.getString("OTHER");
+                Log.i(TAG, String.format("ymount: %s", ymount));
+
+                float ymount_F = Float.valueOf(ymount.trim()).floatValue();
+                float ybc_F = Float.valueOf(ybc.trim()).floatValue();
+                float ycg_F = Float.valueOf(ycg.trim()).floatValue();
+                float ysc_F = Float.valueOf(ysc.trim()).floatValue();
+                float omount_F = Float.valueOf(omount.trim()).floatValue();
+                float osc_F = Float.valueOf(osc.trim()).floatValue();
+                float obc_F = Float.valueOf(obc.trim()).floatValue();
+                float ocg_F = Float.valueOf(ocg.trim()).floatValue();
+                float OTHER_F = Float.valueOf(OTHER.trim()).floatValue();
+
+                System.out.println("float ymount = " + ymount_F);
+                Log.i(TAG, String.valueOf(ymount_F));
+
+                yData = new float[]{ymount_F, ysc_F, ybc_F, ycg_F, omount_F, osc_F, obc_F, ocg_F, OTHER_F};
+
+                ArrayList<Entry> yVals1 = new ArrayList<Entry>();
+
+                for (int i = 0; i < yData.length; i++)
+                    yVals1.add(new Entry(yData[i], i));
+
+                ArrayList<String> xVals = new ArrayList<String>();
+
+                for (int i = 0; i < xData.length; i++)
+                    xVals.add(xData[i]);
+
+                // add many colors
+                ArrayList<Integer> colors = new ArrayList<Integer>();
+
+                for (int c : ColorTemplate.VORDIPLOM_COLORS)
+                    colors.add(c);
+
+                for (int c : ColorTemplate.JOYFUL_COLORS)
+                    colors.add(c);
+
+                for (int c : ColorTemplate.COLORFUL_COLORS)
+                    colors.add(c);
+
+                for (int c : ColorTemplate.LIBERTY_COLORS)
+                    colors.add(c);
+
+                for (int c : ColorTemplate.PASTEL_COLORS)
+                    colors.add(c);
+
+                colors.add(ColorTemplate.getHoloBlue());
+
+
+                // create pie data set
+                PieChart mChart = new PieChart(getApplicationContext());
+                PieDataSet dataSet = new PieDataSet(yVals1, "Time Percentage");
+                dataSet.setSliceSpace(3);
+                dataSet.setSelectionShift(5);
+                dataSet.setColors(colors);
+
+                PieData data = new PieData(xVals, dataSet);
+                mChart.setData(data);
+                mChart.animateY(2000);
+
+                // update pie chart
+                mChart.invalidate();
+
+            } catch (Exception e) {
+                Log.e(TAG, "error getting chart data", e);
+            }
         }
 
         @Override
