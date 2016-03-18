@@ -7,6 +7,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.IBinder;
@@ -21,6 +22,7 @@ import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.mikephil.charting.animation.Easing;
@@ -63,14 +65,15 @@ public class StatsActivity extends AppCompatActivity {
     private static final String TAG = "MetaWear";
 
     //metawear variables
-    //public static final String EXTRA_BT_DEVICE= "EXTRA_BT_DEVICE";
-    //private BluetoothDevice btDevice= null;
     public static String EXPERIMENT_ID = null;
 
     //MPChart variables
     private RelativeLayout mainLayout;
     private PieChart mChart;
     private SeekBar mSeekBarX, mSeekBarY;
+    private TextView tvX, tvY;
+    private Typeface tf;
+
     private float[] yData = { 5, 10, 15, 30 };
     private String[] xData = { "Your Mount", "Your Side Control", "Your Back Control", "Your Closed Guard",
                                 "Opponent Mount", "Opponent Side Control", "Opponent Back Control", "Opponent Closed Guard",
@@ -80,11 +83,34 @@ public class StatsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        PieChart mChart = new PieChart(getApplicationContext());
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        //mChart = new PieChart(getApplicationContext());
+        setContentView(R.layout.pie_layout);
+        tvX = (TextView) findViewById(R.id.tvXMax);
+        tvY = (TextView) findViewById(R.id.tvYMax);
+        mSeekBarX = (SeekBar) findViewById(R.id.seekBar1);
+        mSeekBarY = (SeekBar) findViewById(R.id.seekBar2);
+        mSeekBarY.setProgress(10);
         EXPERIMENT_ID = getIntent().getExtras().getString("EXPERIMENT");
         Log.i(TAG, String.format("Experiment ID: %s", EXPERIMENT_ID));
-        setContentView(mChart);
+
+        mChart = (PieChart) findViewById(R.id.chart1);
+        mChart.setUsePercentValues(true);
+        mChart.setExtraOffsets(5, 10, 5, 5);
+        mChart.setDragDecelerationFrictionCoef(0.95f);
         mChart.setDescription("Grappling Position Analysis");
+
+        mChart.setDrawHoleEnabled(true);
+        mChart.setHoleColor(Color.WHITE);
+        mChart.setTransparentCircleColor(Color.WHITE);
+        mChart.setTransparentCircleAlpha(110);
+        mChart.setHoleRadius(58f);
+        mChart.setTransparentCircleRadius(61f);
+        mChart.setDrawCenterText(true);
+        mChart.setRotationAngle(0);
+        // enable rotation of the chart by touch
+        mChart.setRotationEnabled(true);
 
         //addData(); //causes null pointer error
 
@@ -124,12 +150,15 @@ public class StatsActivity extends AppCompatActivity {
         dataSet.setSliceSpace(3);
         dataSet.setSelectionShift(5);
         dataSet.setColors(colors);
-
         PieData data = new PieData(xVals, dataSet);
-
         mChart.setData(data);
-
         mChart.animateY(2000);
+
+        Legend l = mChart.getLegend();
+        l.setPosition(LegendPosition.RIGHT_OF_CHART);
+        l.setXEntrySpace(7f);
+        l.setYEntrySpace(0f);
+        l.setYOffset(0f);
 
         // update pie chart
         mChart.invalidate();
@@ -150,7 +179,7 @@ public class StatsActivity extends AppCompatActivity {
 
     }
 
-    public float[] updateYData(JSONObject serverResponse) {
+    public void updateYData(JSONObject serverResponse) {
         try {
             Log.i(TAG, String.format("updating Y data with: %s", serverResponse));
             String ymount = (String) serverResponse.getString("ymount");
@@ -177,19 +206,57 @@ public class StatsActivity extends AppCompatActivity {
             System.out.println("float ymount = " + ymount_F);
             Log.i(TAG, String.valueOf(ymount_F));
 
-            yData = new float[] { ymount_F, ysc_F, ybc_F, ycg_F, omount_F, osc_F, obc_F, ocg_F, OTHER_F };
+            yData = new float[]{ymount_F, ysc_F, ybc_F, ycg_F, omount_F, osc_F, obc_F, ocg_F, OTHER_F};
+            ArrayList<Entry> yVals1 = new ArrayList<Entry>();
+
+            for (int i = 0; i < yData.length; i++)
+                yVals1.add(new Entry(yData[i], i));
+
+            ArrayList<String> xVals = new ArrayList<String>();
+
+            Log.i(TAG, String.valueOf(xData));
+
+            for (int i = 0; i < xData.length; i++)
+                xVals.add(xData[i]);
+
+            // add many colors
+            ArrayList<Integer> colors = new ArrayList<Integer>();
+
+            for (int c : ColorTemplate.VORDIPLOM_COLORS)
+                colors.add(c);
+
+            for (int c : ColorTemplate.JOYFUL_COLORS)
+                colors.add(c);
+
+            for (int c : ColorTemplate.COLORFUL_COLORS)
+                colors.add(c);
+
+            for (int c : ColorTemplate.LIBERTY_COLORS)
+                colors.add(c);
+
+            for (int c : ColorTemplate.PASTEL_COLORS)
+                colors.add(c);
+
+            colors.add(ColorTemplate.getHoloBlue());
+
+            // create pie data set
+            PieDataSet dataSet = new PieDataSet(yVals1, "Time Percentage");
+            dataSet.setSliceSpace(3);
+            dataSet.setSelectionShift(5);
+            dataSet.setColors(colors);
+
+            PieData data = new PieData(xVals, dataSet);
+            mChart.setData(data);
+            mChart.animateY(2000);
+            // update pie chart
+            mChart.invalidate();
 
         } catch (Exception e) {
             Log.e(TAG, "error getting chart data", e);
         }
-
-        for (int i = 0; i < yData.length; i++){
-            Log.i(TAG, String.format("backup value2: %s", yData[i]));
-        }
-        return yData;
     }
 
-    public class DownloadFilesTask extends AsyncTask<URL, JSONObject, String> {
+    public class DownloadFilesTask extends AsyncTask<URL, JSONObject, JSONObject> {
         private ProgressDialog pDialog;
 
         @Override
@@ -203,13 +270,14 @@ public class StatsActivity extends AppCompatActivity {
         }
 
         @Override
-        protected String doInBackground(URL... my_url) {
+        protected JSONObject doInBackground(URL... my_url) {
 
             HttpURLConnection urlConnection = null;
             String boundary = "*****";
             DataInputStream inputStream = null;
             String lineEnd = "\r\n";
             String twoHyphens = "--";
+            JSONObject recvdjson = null;
 
             String responseText = null;
             String serverResponseMessage = null;
@@ -241,11 +309,10 @@ public class StatsActivity extends AppCompatActivity {
                 Log.i(TAG, String.format("testArray: %s", testArray));
                 Log.i(TAG, String.format("responseText: %s", responseText));
 
-                JSONObject recvdjson = new JSONObject(serverResponseMessage);
+                recvdjson = new JSONObject(serverResponseMessage);
                 Log.i(TAG, String.format("JSON: %s", recvdjson));
-                //float[] backup = updateYData(recvdjson);
-                //Log.i(TAG, String.format("backup value: %s", backup));
-                publishProgress(recvdjson);
+
+                //publishProgress(recvdjson);
                 response.close();
             } catch (Exception e) {
                 Log.e(TAG, "Analysis error", e);
@@ -256,10 +323,22 @@ public class StatsActivity extends AppCompatActivity {
 
             }
 
-            return responseText;
+            return recvdjson;
         }
 
         protected void onProgressUpdate(JSONObject serverResponse) {
+            try {
+                Log.i(TAG, String.format("updating Y data with: %s", serverResponse));
+
+            } catch (Exception e) {
+                Log.e(TAG, "error getting chart data", e);
+            }
+        }
+
+        protected void onPostExecute(JSONObject serverResponse) {
+            pDialog.dismiss();
+            Log.i(TAG, String.format("onPostExecute: %s", serverResponse));
+            //updateYData(result);
             try {
                 Log.i(TAG, String.format("updating Y data with: %s", serverResponse));
                 String ymount = (String) serverResponse.getString("ymount");
@@ -287,13 +366,14 @@ public class StatsActivity extends AppCompatActivity {
                 Log.i(TAG, String.valueOf(ymount_F));
 
                 yData = new float[]{ymount_F, ysc_F, ybc_F, ycg_F, omount_F, osc_F, obc_F, ocg_F, OTHER_F};
-
                 ArrayList<Entry> yVals1 = new ArrayList<Entry>();
 
                 for (int i = 0; i < yData.length; i++)
                     yVals1.add(new Entry(yData[i], i));
 
                 ArrayList<String> xVals = new ArrayList<String>();
+
+                Log.i(TAG, String.valueOf(xData));
 
                 for (int i = 0; i < xData.length; i++)
                     xVals.add(xData[i]);
@@ -318,9 +398,7 @@ public class StatsActivity extends AppCompatActivity {
 
                 colors.add(ColorTemplate.getHoloBlue());
 
-
                 // create pie data set
-                PieChart mChart = new PieChart(getApplicationContext());
                 PieDataSet dataSet = new PieDataSet(yVals1, "Time Percentage");
                 dataSet.setSliceSpace(3);
                 dataSet.setSelectionShift(5);
@@ -329,20 +407,11 @@ public class StatsActivity extends AppCompatActivity {
                 PieData data = new PieData(xVals, dataSet);
                 mChart.setData(data);
                 mChart.animateY(2000);
-
                 // update pie chart
                 mChart.invalidate();
-
             } catch (Exception e) {
                 Log.e(TAG, "error getting chart data", e);
             }
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            pDialog.dismiss();
-            Log.i(TAG, String.valueOf(result));
-            toastIt(result);
         }
 
     }
