@@ -73,10 +73,18 @@ public class StatsActivity extends AppCompatActivity {
     private SeekBar mSeekBarX, mSeekBarY;
     private TextView tvX, tvY;
     private Typeface tf;
+    float ymount_F = 0;
+    float ybc_F = 0;
+    float ycg_F = 0;
+    float ysc_F = 0;
+    float omountsc_F = 0;
+    float obc_F = 0;
+    float ocg_F = 0;
+    float OTHER_F = 1;
 
-    private float[] yData = { 5, 10, 15, 30 };
+    private float[] yData = { ymount_F, ysc_F, ybc_F, ycg_F, omountsc_F, obc_F, ocg_F, OTHER_F };
     private String[] xData = { "Your Mount", "Your Side Control", "Your Back Control", "Your Closed Guard",
-                                "Opponent Mount", "Opponent Side Control", "Opponent Back Control", "Opponent Closed Guard",
+                                "Opponent Mount or Side Control", "Opponent Back Control", "Opponent Closed Guard",
                                 "Other"};
 
 
@@ -179,83 +187,6 @@ public class StatsActivity extends AppCompatActivity {
 
     }
 
-    public void updateYData(JSONObject serverResponse) {
-        try {
-            Log.i(TAG, String.format("updating Y data with: %s", serverResponse));
-            String ymount = (String) serverResponse.getString("ymount");
-            String ybc = (String) serverResponse.getString("ybc");
-            String ycg = (String) serverResponse.getString("ycg");
-            String ysc = (String) serverResponse.getString("ysc");
-            String omount = (String) serverResponse.getString("omount");
-            String osc = (String) serverResponse.getString("osc");
-            String obc = (String) serverResponse.getString("obc");
-            String ocg = (String) serverResponse.getString("ocg");
-            String OTHER = (String) serverResponse.getString("OTHER");
-            Log.i(TAG, String.format("ymount: %s", ymount));
-
-            float ymount_F = Float.valueOf(ymount.trim()).floatValue();
-            float ybc_F = Float.valueOf(ybc.trim()).floatValue();
-            float ycg_F = Float.valueOf(ycg.trim()).floatValue();
-            float ysc_F = Float.valueOf(ysc.trim()).floatValue();
-            float omount_F = Float.valueOf(omount.trim()).floatValue();
-            float osc_F = Float.valueOf(osc.trim()).floatValue();
-            float obc_F = Float.valueOf(obc.trim()).floatValue();
-            float ocg_F = Float.valueOf(ocg.trim()).floatValue();
-            float OTHER_F = Float.valueOf(OTHER.trim()).floatValue();
-
-            System.out.println("float ymount = " + ymount_F);
-            Log.i(TAG, String.valueOf(ymount_F));
-
-            yData = new float[]{ymount_F, ysc_F, ybc_F, ycg_F, omount_F, osc_F, obc_F, ocg_F, OTHER_F};
-            ArrayList<Entry> yVals1 = new ArrayList<Entry>();
-
-            for (int i = 0; i < yData.length; i++)
-                yVals1.add(new Entry(yData[i], i));
-
-            ArrayList<String> xVals = new ArrayList<String>();
-
-            Log.i(TAG, String.valueOf(xData));
-
-            for (int i = 0; i < xData.length; i++)
-                xVals.add(xData[i]);
-
-            // add many colors
-            ArrayList<Integer> colors = new ArrayList<Integer>();
-
-            for (int c : ColorTemplate.VORDIPLOM_COLORS)
-                colors.add(c);
-
-            for (int c : ColorTemplate.JOYFUL_COLORS)
-                colors.add(c);
-
-            for (int c : ColorTemplate.COLORFUL_COLORS)
-                colors.add(c);
-
-            for (int c : ColorTemplate.LIBERTY_COLORS)
-                colors.add(c);
-
-            for (int c : ColorTemplate.PASTEL_COLORS)
-                colors.add(c);
-
-            colors.add(ColorTemplate.getHoloBlue());
-
-            // create pie data set
-            PieDataSet dataSet = new PieDataSet(yVals1, "Time Percentage");
-            dataSet.setSliceSpace(3);
-            dataSet.setSelectionShift(5);
-            dataSet.setColors(colors);
-
-            PieData data = new PieData(xVals, dataSet);
-            mChart.setData(data);
-            mChart.animateY(2000);
-            // update pie chart
-            mChart.invalidate();
-
-        } catch (Exception e) {
-            Log.e(TAG, "error getting chart data", e);
-        }
-    }
-
     public class DownloadFilesTask extends AsyncTask<URL, JSONObject, JSONObject> {
         private ProgressDialog pDialog;
 
@@ -338,15 +269,13 @@ public class StatsActivity extends AppCompatActivity {
         protected void onPostExecute(JSONObject serverResponse) {
             pDialog.dismiss();
             Log.i(TAG, String.format("onPostExecute: %s", serverResponse));
-            //updateYData(result);
             try {
                 Log.i(TAG, String.format("updating Y data with: %s", serverResponse));
                 String ymount = (String) serverResponse.getString("ymount");
                 String ybc = (String) serverResponse.getString("ybc");
                 String ycg = (String) serverResponse.getString("ycg");
                 String ysc = (String) serverResponse.getString("ysc");
-                String omount = (String) serverResponse.getString("omount");
-                String osc = (String) serverResponse.getString("osc");
+                String omountsc = (String) serverResponse.getString("omountsc");
                 String obc = (String) serverResponse.getString("obc");
                 String ocg = (String) serverResponse.getString("ocg");
                 String OTHER = (String) serverResponse.getString("OTHER");
@@ -356,8 +285,7 @@ public class StatsActivity extends AppCompatActivity {
                 float ybc_F = Float.valueOf(ybc.trim()).floatValue();
                 float ycg_F = Float.valueOf(ycg.trim()).floatValue();
                 float ysc_F = Float.valueOf(ysc.trim()).floatValue();
-                float omount_F = Float.valueOf(omount.trim()).floatValue();
-                float osc_F = Float.valueOf(osc.trim()).floatValue();
+                float omountsc_F = Float.valueOf(omountsc.trim()).floatValue();
                 float obc_F = Float.valueOf(obc.trim()).floatValue();
                 float ocg_F = Float.valueOf(ocg.trim()).floatValue();
                 float OTHER_F = Float.valueOf(OTHER.trim()).floatValue();
@@ -365,7 +293,7 @@ public class StatsActivity extends AppCompatActivity {
                 System.out.println("float ymount = " + ymount_F);
                 Log.i(TAG, String.valueOf(ymount_F));
 
-                yData = new float[]{ymount_F, ysc_F, ybc_F, ycg_F, omount_F, osc_F, obc_F, ocg_F, OTHER_F};
+                yData = new float[]{ymount_F, ysc_F, ybc_F, ycg_F, omountsc_F, obc_F, ocg_F, OTHER_F};
                 ArrayList<Entry> yVals1 = new ArrayList<Entry>();
 
                 for (int i = 0; i < yData.length; i++)
