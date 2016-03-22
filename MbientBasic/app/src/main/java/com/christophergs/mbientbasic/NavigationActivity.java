@@ -57,6 +57,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.mbientlab.metawear.MetaWearBleService;
@@ -516,6 +517,10 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
                 }
 
                 transaction.add(R.id.container2, currentFragment2, fragmentTag2);
+                FrameLayout f;
+                f = (FrameLayout) findViewById(R.id.container2);
+                f.setVisibility(View.VISIBLE);
+
             }
         }
 

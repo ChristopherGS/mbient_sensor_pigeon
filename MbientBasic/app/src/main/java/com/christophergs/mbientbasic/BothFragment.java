@@ -39,13 +39,17 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.content.FileProvider;
+import android.text.Layout;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Switch;
@@ -93,7 +97,6 @@ public class BothFragment extends ThreeAxisChartFragment {
     @Override
     public void onViewCreated(final View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         ((TextView) view.findViewById(R.id.config_option_title)).setText(R.string.config_name_acc_range);
 
         accRangeSelection = (Spinner) view.findViewById(R.id.config_option_spinner);
