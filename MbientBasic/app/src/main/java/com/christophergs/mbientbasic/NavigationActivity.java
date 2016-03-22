@@ -482,7 +482,7 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
         //we keep tag 1 as the per the mbient code and make tag 2 the adjusted gyro,
         //knowing that the BothFragment is a copy of accelerometer with stream adjustments
         String fragmentTag= FRAGMENT_CLASSES.get(id).getCanonicalName();
-        String fragmentTag2= FRAGMENT_CLASSES.get(2131624131).getCanonicalName(); //Gyro New
+        String fragmentTag2= FRAGMENT_CLASSES.get(2131624137).getCanonicalName(); //Gyro New
         //2131165353
 
 
@@ -511,7 +511,7 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
 
             if (currentFragment2 == null) {
                 try {
-                    currentFragment2= FRAGMENT_CLASSES.get(2131624131).getConstructor().newInstance();//new gyro
+                    currentFragment2= FRAGMENT_CLASSES.get(2131624137).getConstructor().newInstance();//new gyro
                 } catch (Exception e) {
                     throw new RuntimeException("Cannot instantiate fragment", e);
                 }
