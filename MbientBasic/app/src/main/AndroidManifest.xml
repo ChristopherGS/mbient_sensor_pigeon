@@ -43,6 +43,10 @@
             android:name=".StatsActivity"
             android:label="@string/title_activity_stats" >
         </activity>
+        <activity
+            android:name=".SuggestionActivity"
+            android:label="@string/title_activity_suggestion" >
+        </activity>
     </application>
 
 </manifest>

@@ -59,10 +59,11 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
-public class StatsActivity extends AppCompatActivity {
+public class StatsActivity extends AppCompatActivity implements OnSeekBarChangeListener {
 
     //logging variables
     private static final String TAG = "MetaWear";
+    public static final int REQUEST_START_APP= 1;
 
     //metawear variables
     public static String EXPERIMENT_ID = null;
@@ -83,6 +84,7 @@ public class StatsActivity extends AppCompatActivity {
     float OTHER_F = 1;
 
     private float[] yData = { ymount_F, ysc_F, ybc_F, ycg_F, omountsc_F, obc_F, ocg_F, OTHER_F };
+    private String[] mParties = new String[]{ "Party A", "Party B", "Party C", "Party D", "Party E", "Party F", "Party G", "Party H" };
     private String[] xData = { "Your Mount", "Your Side Control", "Your Back Control", "Your Closed Guard",
                                 "Opponent Mount or Side Control", "Opponent Back Control", "Opponent Closed Guard",
                                 "Other"};
@@ -100,10 +102,14 @@ public class StatsActivity extends AppCompatActivity {
         mSeekBarX = (SeekBar) findViewById(R.id.seekBar1);
         mSeekBarY = (SeekBar) findViewById(R.id.seekBar2);
         mSeekBarY.setProgress(10);
+        mSeekBarX.setOnSeekBarChangeListener(this);
+        mSeekBarY.setOnSeekBarChangeListener(this);
+        
         EXPERIMENT_ID = getIntent().getExtras().getString("EXPERIMENT");
         Log.i(TAG, String.format("Experiment ID: %s", EXPERIMENT_ID));
 
         mChart = (PieChart) findViewById(R.id.chart1);
+
         mChart.setUsePercentValues(true);
         mChart.setExtraOffsets(5, 10, 5, 5);
         mChart.setDragDecelerationFrictionCoef(0.95f);
@@ -159,6 +165,8 @@ public class StatsActivity extends AppCompatActivity {
         dataSet.setSelectionShift(5);
         dataSet.setColors(colors);
         PieData data = new PieData(xVals, dataSet);
+        data.setValueFormatter(new PercentFormatter());
+        data.setValueTextSize(10f);
         mChart.setData(data);
         mChart.animateY(2000);
 
@@ -174,6 +182,45 @@ public class StatsActivity extends AppCompatActivity {
         getAnalysis();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_stats, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.actionSuggestions: {
+                toastIt("Suggestions");
+                Intent navActivityIntent = new Intent(StatsActivity.this, SuggestionActivity.class);
+                //navActivityIntent.putExtra(NavigationActivity.EXTRA_BT_DEVICE, btDevice);
+                //Log.i(TAG, String.format("pie button eid: %s", EXPERIMENT_ID));
+                //navActivityIntent.putExtra("EXPERIMENT", EXPERIMENT_ID);
+                startActivityForResult(navActivityIntent, REQUEST_START_APP);
+                break;
+            }
+            case R.id.actionDashboard: {
+                toastIt("Dashboard coming soon");
+                break;
+            }
+            case R.id.actionTogglePercent:
+                mChart.setUsePercentValues(!mChart.isUsePercentValuesEnabled());
+                mChart.invalidate();
+                break;
+            case R.id.actionToggleHole: {
+                if (mChart.isDrawHoleEnabled())
+                    mChart.setDrawHoleEnabled(false);
+                else
+                    mChart.setDrawHoleEnabled(true);
+                mChart.invalidate();
+                break;
+            }
+        }
+        return true;
+    }
+
+
 
     public void getAnalysis() {
         toastIt("Getting analysis from server");
@@ -184,6 +231,24 @@ public class StatsActivity extends AppCompatActivity {
             Log.e(TAG, "file send error", e);
             toastIt("File sending error!");
         }
+
+    }
+
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        tvX.setText("" + (mSeekBarX.getProgress() + 1));
+        tvY.setText("" + (mSeekBarY.getProgress()));
+
+        setData(mSeekBarX.getProgress(), mSeekBarY.getProgress());
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+
+    }
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
 
     }
 
@@ -281,6 +346,7 @@ public class StatsActivity extends AppCompatActivity {
                 String OTHER = (String) serverResponse.getString("OTHER");
                 Log.i(TAG, String.format("ymount: %s", ymount));
 
+
                 float ymount_F = Float.valueOf(ymount.trim()).floatValue();
                 float ybc_F = Float.valueOf(ybc.trim()).floatValue();
                 float ycg_F = Float.valueOf(ycg.trim()).floatValue();
@@ -331,8 +397,9 @@ public class StatsActivity extends AppCompatActivity {
                 dataSet.setSliceSpace(3);
                 dataSet.setSelectionShift(5);
                 dataSet.setColors(colors);
-
                 PieData data = new PieData(xVals, dataSet);
+                data.setValueFormatter(new PercentFormatter());
+                data.setValueTextSize(10f);
                 mChart.setData(data);
                 mChart.animateY(2000);
                 // update pie chart
@@ -342,6 +409,65 @@ public class StatsActivity extends AppCompatActivity {
             }
         }
 
+    }
+
+    private void setData(int count, float range) {
+
+        float mult = range;
+
+        ArrayList<Entry> yVals1 = new ArrayList<Entry>();
+
+        // IMPORTANT: In a PieChart, no values (Entry) should have the same
+        // xIndex (even if from different DataSets), since no values can be
+        // drawn above each other.
+        for (int i = 0; i < count + 1; i++) {
+            yVals1.add(new Entry((float) (Math.random() * mult) + mult / 5, i));
+        }
+
+        ArrayList<String> xVals = new ArrayList<String>();
+
+        for (int i = 0; i < count + 1; i++)
+            xVals.add(mParties[i % mParties.length]);
+
+        PieDataSet dataSet = new PieDataSet(yVals1, "Election Results");
+        dataSet.setSliceSpace(3f);
+        dataSet.setSelectionShift(5f);
+
+        // add a lot of colors
+
+        ArrayList<Integer> colors = new ArrayList<Integer>();
+
+        for (int c : ColorTemplate.VORDIPLOM_COLORS)
+            colors.add(c);
+
+        for (int c : ColorTemplate.JOYFUL_COLORS)
+            colors.add(c);
+
+        for (int c : ColorTemplate.COLORFUL_COLORS)
+            colors.add(c);
+
+        for (int c : ColorTemplate.LIBERTY_COLORS)
+            colors.add(c);
+
+        for (int c : ColorTemplate.PASTEL_COLORS)
+            colors.add(c);
+
+        colors.add(ColorTemplate.getHoloBlue());
+
+        dataSet.setColors(colors);
+        //dataSet.setSelectionShift(0f);
+
+        PieData data = new PieData(xVals, dataSet);
+        data.setValueFormatter(new PercentFormatter());
+        data.setValueTextSize(11f);
+        data.setValueTextColor(Color.WHITE);
+        data.setValueTypeface(tf);
+        mChart.setData(data);
+
+        // undo all highlights
+        mChart.highlightValues(null);
+
+        mChart.invalidate();
     }
 
     private void toastIt(String msg) {
