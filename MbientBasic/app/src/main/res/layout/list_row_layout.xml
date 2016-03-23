@@ -1,6 +1,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="?android:attr/listPreferredItemHeight"
+    android:descendantFocusability="blocksDescendants"
     android:padding="6dip" >
 
     <ImageView
@@ -9,9 +10,9 @@
         android:layout_height="fill_parent"
         android:layout_alignParentBottom="true"
         android:layout_alignParentTop="true"
-        android:layout_marginRight="6dip"
+        android:layout_marginRight="12dip"
         android:contentDescription="TODO"
-        android:src="@android:drawable/ic_dialog_info" />
+        android:src="@android:drawable/ic_media_play" />
 
     <TextView
         android:id="@+id/secondLine"
@@ -23,7 +24,7 @@
         android:ellipsize="marquee"
         android:singleLine="true"
         android:text="Description"
-        android:textSize="12sp" />
+        android:textSize="14sp" />
 
     <TextView
         android:id="@+id/firstLine"
@@ -36,6 +37,6 @@
         android:layout_toRightOf="@id/icon"
         android:gravity="center_vertical"
         android:text="Example application"
-        android:textSize="16sp" />
+        android:textSize="20sp" />
 
 </RelativeLayout>

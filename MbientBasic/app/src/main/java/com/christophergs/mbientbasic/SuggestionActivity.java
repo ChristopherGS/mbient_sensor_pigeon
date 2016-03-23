@@ -1,8 +1,14 @@
 package com.christophergs.mbientbasic;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
+import android.text.util.Linkify;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,26 +22,38 @@ import java.util.ArrayList;
 import java.util.List;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class SuggestionActivity extends AppCompatActivity {
     ListView list;
     private List<String> List_file;
+    TextView tvName = null;
+    private static final String TAG = "MetaWear";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_suggestion);
-        populateUsersList();
-    }
-
-    private void populateUsersList () {
+        //populateUsersList();
         // Construct the data source
         ArrayList<User> arrayOfUsers = User.getUsers();
         // Create the adapter to convert the array to views
-        UsersAdapter adapter = new UsersAdapter(this, arrayOfUsers);
+        final UsersAdapter adapter = new UsersAdapter(this, arrayOfUsers);
         // Attach the adapter to a ListView
-        ListView listView = (ListView) findViewById(R.id.dsg_suggestions);
-        listView.setAdapter(adapter);
+        ListView list = (ListView) findViewById(R.id.dsg_suggestions);
+        list.setAdapter(adapter);
+
+        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> arg0, View view, int position, long id) {
+                // When clicked, show a toast with the TextView text
+                Log.i(TAG, String.format("Video Playing, id: %s, position: %s, view: %s", id, position, view));
+                User user = adapter.getItem(position);
+                Log.i(TAG, String.format("Video Playing, user name: %s, user home: %s", user.name, user.hometown));
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=0e0jMrZas-g")));
+            }
+
+        });
+
     }
 
     @Override
@@ -63,6 +81,7 @@ public class SuggestionActivity extends AppCompatActivity {
     public static class User {
         public String name;
         public String hometown;
+        public String gi;
 
         public User(String name, String hometown) {
             this.name = name;
@@ -71,10 +90,16 @@ public class SuggestionActivity extends AppCompatActivity {
 
         public static ArrayList<User> getUsers() {
             ArrayList<User> users = new ArrayList<User>();
-            users.add(new User("Hip escape", "San Diego"));
-            users.add(new User("Upa", "San Francisco"));
-            users.add(new User("Some sweep", "San Marco"));
+            users.add(new User("<a href=\"https://www.youtube.com/watch?v=0e0jMrZas-g\">Side Mount Escape - Hip Escape</a>", "Jiu-Jitsu Brotherhood"));
+            users.add(new User("<a href=\"https://www.youtube.com/watch?v=V7vmzcc3ldA\">Side Mount Escape - Sit up</a>", "Marcelo Garcia" ));
+            users.add(new User("<a href=\"https://www.youtube.com/watch?v=jxiHY2AtG8w\">Side Mount Escape (No Gi)</a>", "Stephan Kesting"));
+            users.add(new User("<a href=\"https://www.youtube.com/watch?v=x0j7muxW_1Y\">Side Mount Escape - Turtle</a>", "Ricardo Cavalcanti"));
+            users.add(new User("<a href=\"https://www.youtube.com/watch?v=4l9tP2gRuOo\">Side Mount Escape - Arm positions</a>", "Kurt Osiander" ));
+            users.add(new User("<a href=\"https://www.youtube.com/watch?v=g5dG5kLqlFw\">Side Mount Escapes - Rapid overview</a>", "Jason Scully"));
+            users.add(new User("<a href=\"https://www.youtube.com/watch?v=7lxafCrBvq0\">Side Mount Escapes - Fundamentals</a>", "Damian Maia"));
+            users.add(new User("<a href=\"https://www.youtube.com/watch?v=1d-HZD_R08s\">Side Mount - Surviving</a>", "Ryron Gracie"));
             return users;
+
         }
     }
 
@@ -89,16 +114,21 @@ public class SuggestionActivity extends AppCompatActivity {
             User user = getItem(position);
             // Check if an existing view is being reused, otherwise inflate the view
             if (convertView == null) {
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.simple_list_layout, parent, false);
+                convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_row_layout, parent, false);
             }
             // Lookup view for data population
-            TextView tvName = (TextView) convertView.findViewById(R.id.tvName);
-            TextView tvHome = (TextView) convertView.findViewById(R.id.tvHometown);
+            //TextView tvName = (TextView) convertView.findViewById(R.id.tvName);
+            TextView tvHome = (TextView) convertView.findViewById(R.id.secondLine);
+            TextView tvName = (TextView) convertView.findViewById(R.id.firstLine);
+            tvName.setMovementMethod(LinkMovementMethod.getInstance());
+
             // Populate the data into the template view using the data object
-            tvName.setText(user.name);
+            tvName.setText(Html.fromHtml(user.name));
             tvHome.setText(user.hometown);
+
             // Return the completed view to render on screen
             return convertView;
         }
     }
+
 }
