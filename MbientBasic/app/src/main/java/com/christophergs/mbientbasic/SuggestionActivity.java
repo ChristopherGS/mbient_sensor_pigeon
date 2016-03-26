@@ -50,6 +50,11 @@ public class SuggestionActivity extends AppCompatActivity {
                 User user = adapter.getItem(position);
                 Log.i(TAG, String.format("Video Playing, user name: %s, user home: %s", user.name, user.hometown));
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=0e0jMrZas-g")));
+                Intent videoActivityIntent = new Intent(SuggestionActivity.this, VideoActivity.class);
+                //videoActivityIntent.putExtra(NavigationActivity.YOUTUBE_LINK, youTubeLink);
+                Log.i(TAG, String.format("loading video"));
+                //navActivityIntent.putExtra("EXPERIMENT", EXPERIMENT_ID);
+                startActivityForResult(videoActivityIntent, 1);
             }
 
         });
@@ -90,7 +95,7 @@ public class SuggestionActivity extends AppCompatActivity {
 
         public static ArrayList<User> getUsers() {
             ArrayList<User> users = new ArrayList<User>();
-            users.add(new User("<a href=\"https://www.youtube.com/watch?v=0e0jMrZas-g\">Side Mount Escape - Hip Escape</a>", "Jiu-Jitsu Brotherhood"));
+            users.add(new User("Side Mount Escape - Hip Escape", "Jiu-Jitsu Brotherhood"));
             users.add(new User("<a href=\"https://www.youtube.com/watch?v=V7vmzcc3ldA\">Side Mount Escape - Sit up</a>", "Marcelo Garcia" ));
             users.add(new User("<a href=\"https://www.youtube.com/watch?v=jxiHY2AtG8w\">Side Mount Escape (No Gi)</a>", "Stephan Kesting"));
             users.add(new User("<a href=\"https://www.youtube.com/watch?v=x0j7muxW_1Y\">Side Mount Escape - Turtle</a>", "Ricardo Cavalcanti"));
