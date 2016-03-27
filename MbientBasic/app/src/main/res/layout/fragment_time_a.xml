@@ -4,12 +4,207 @@
     android:layout_height="match_parent"
     tools:context="com.christophergs.mbientbasic.TimeAFragment">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <TableLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="A"
-        android:textSize="40dp"
-        android:textStyle="bold"
-        android:layout_centerInParent="true"/>
+        android:orientation="vertical"
+        >
+
+        <TableRow android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:paddingTop="75dp">
+            <FrameLayout
+                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight="1" >
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    xmlns:app="http://schemas.android.com/apk/res-auto"
+                    android:src="@drawable/mount_hi_res"
+                    android:paddingTop="5dp"
+                    android:paddingBottom="5dp"
+                    android:paddingLeft="5dp"
+                    android:id="@+id/mount_db_image"
+                    android:layout_width="175dp"
+                    android:layout_height="175dp"
+                    android:layout_gravity="left"
+                    app:civ_border_width="2dp"
+                    app:civ_border_color="#FF000000"/>
+
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <TextView android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Mount"
+                    android:layout_gravity="center"
+                    android:layout_toRightOf="@id/mount_db_image"
+                    android:paddingBottom="20dp"
+                    android:id="@+id/dashboard_position"
+                    android:layout_alignBottom="@+id/dashboard_time"
+                    android:textAlignment="center"
+                    android:textStyle="bold"
+                    android:layout_alignParentRight="true"
+                    style="bold"
+                    android:gravity="center_horizontal"
+                    android:textSize="20dp" />
+
+                <TextView android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="90 minutes"
+                    android:layout_gravity="center"
+                    android:paddingTop="10dp"
+                    android:id="@+id/dashboard_time_number"
+                    android:textSize="18dp" />
+
+                <TextView android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="22%"
+                    android:layout_gravity="center"
+                    android:paddingTop="20dp"
+                    android:id="@+id/dashboard_percentage_number"
+                    android:textSize="18dp" />
+
+            </LinearLayout>
+
+        </TableRow>
+
+
+
+        <TableRow android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp">
+
+            <FrameLayout
+                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight="1" >
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    xmlns:app="http://schemas.android.com/apk/res-auto"
+                    android:src="@drawable/mount_hi_res"
+                    android:paddingTop="5dp"
+                    android:paddingBottom="5dp"
+                    android:paddingLeft="5dp"
+                    android:id="@+id/back_mount_db_image"
+                    android:layout_width="175dp"
+                    android:layout_height="175dp"
+                    android:layout_gravity="left"
+                    app:civ_border_width="2dp"
+                    app:civ_border_color="#FF000000"/>
+
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_vertical">
+
+                <TextView android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Back Control"
+                    android:layout_gravity="center|top"
+                    android:paddingBottom="20dp"
+                    android:id="@+id/dashboard_position2"
+                    android:textAlignment="center"
+                    android:textStyle="bold"
+                    style="bold"
+                    android:layout_below="@+id/dashboard_percentage_number"
+                    android:gravity="center|top"
+                    android:textSize="20dp" />
+
+                <TextView android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="75 minutes"
+                    android:layout_gravity="center"
+                    android:layout_below="@id/dashboard_position2"
+                    android:paddingTop="10dp"
+                    android:id="@+id/dashboard_time_number2"
+                    android:textSize="18dp" />
+
+                <TextView android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="35%"
+                    android:layout_gravity="center"
+                    android:paddingTop="10dp"
+                    android:id="@+id/dashboard_percentage_number2"
+                    android:textSize="18dp" />
+
+            </LinearLayout>
+
+        </TableRow>
+
+        <TableRow android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp">
+
+            <FrameLayout
+                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight="1" >
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    xmlns:app="http://schemas.android.com/apk/res-auto"
+                    android:src="@drawable/mount_hi_res"
+                    android:paddingTop="5dp"
+                    android:paddingBottom="5dp"
+                    android:paddingLeft="5dp"
+                    android:id="@+id/side_db_image"
+                    android:layout_width="175dp"
+                    android:layout_height="175dp"
+                    android:layout_gravity="left"
+                    app:civ_border_width="2dp"
+                    app:civ_border_color="#FF000000"/>
+
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_vertical">
+
+                <TextView android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Side Control"
+                    android:layout_gravity="center|top"
+                    android:paddingBottom="20dp"
+                    android:id="@+id/dashboard_position3"
+                    android:textAlignment="center"
+                    android:textStyle="bold"
+                    style="bold"
+                    android:layout_below="@+id/dashboard_percentage_number"
+                    android:gravity="center|top"
+                    android:textSize="20dp" />
+
+                <TextView android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="16 minutes"
+                    android:layout_gravity="center"
+                    android:layout_below="@id/dashboard_position2"
+                    android:paddingTop="10dp"
+                    android:id="@+id/dashboard_time_number3"
+                    android:textSize="18dp" />
+
+                <TextView android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="19%"
+                    android:layout_gravity="center"
+                    android:paddingTop="10dp"
+                    android:id="@+id/dashboard_percentage_number3"
+                    android:textSize="18dp" />
+
+            </LinearLayout>
+
+        </TableRow>
+
+    </TableLayout>
 
 </RelativeLayout>
