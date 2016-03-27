@@ -20,6 +20,8 @@ allprojects {
             url "https://jitpack.io"
         }
 
+        mavenCentral()
+
         ivy {
             url "http://ivyrep.mbientlab.com"
             layout "gradle"

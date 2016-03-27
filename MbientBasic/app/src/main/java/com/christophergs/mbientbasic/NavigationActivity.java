@@ -89,7 +89,6 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
     private final static String FRAGMENT_KEY= "FRAGMENT_KEY";
     private static final Map<Integer, Class<? extends ModuleFragmentBase>> FRAGMENT_CLASSES;
     private static final String TAG = "MetaWear";
-    public String EXPERIMENT_ID = "105"; //test 1
 
     public static final int REQUEST_START_APP= 1;
 
@@ -156,16 +155,7 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
         public void onServiceDisconnected(ComponentName name) { }
     }
 
-    public String setEIDValue(String my_value){
-        EXPERIMENT_ID = my_value;
-        return EXPERIMENT_ID;
-    }
-
-    public String getEIDValue(){
-        return EXPERIMENT_ID;
-    }
-
-    public class DownloadFilesTask extends AsyncTask<URL, Void, String> {
+    private class DownloadFilesTask extends AsyncTask<URL, Void, String> {
         private ProgressDialog pDialog;
 
         @Override
@@ -194,8 +184,6 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
             byte[] buffer;
             int maxBufferSize = 1 * 1024 * 1024;
 
-            String responseText = null;
-            String serverResponseMessage = null;
             try {
                 URL url = my_url[0];
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -234,23 +222,9 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
                 // Responses from the server (code and message)
 
                 int responseCode = urlConnection.getResponseCode();
-                responseText = urlConnection.getResponseMessage();
+                String responseText = urlConnection.getResponseMessage();
+                Log.i(TAG, responseText.toString());
 
-                InputStream response = urlConnection.getInputStream();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(response));
-                StringBuilder sb = new StringBuilder();
-                String line = "";
-                while ((line = reader.readLine()) != null) {
-                    sb.append(line + "\n");
-                }
-                serverResponseMessage = sb.toString();
-                Log.i(TAG, String.format("full server response: %s", serverResponseMessage));
-                JSONObject jObject = new JSONObject(serverResponseMessage);
-                String EXPERIMENT_ID = jObject.getString("id");
-                Log.i(TAG, String.format("experiment id: %s", EXPERIMENT_ID));
-                setEIDValue(EXPERIMENT_ID);
-
-                response.close();
                 fileInputStream.close();
                 outputStream.flush();
                 outputStream.close();
@@ -263,8 +237,7 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
                 }
 
             }
-
-            return responseText;
+            return "Uploaded";
         }
 
         @Override
@@ -482,7 +455,7 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
         //we keep tag 1 as the per the mbient code and make tag 2 the adjusted gyro,
         //knowing that the BothFragment is a copy of accelerometer with stream adjustments
         String fragmentTag= FRAGMENT_CLASSES.get(id).getCanonicalName();
-        String fragmentTag2= FRAGMENT_CLASSES.get(2131624140).getCanonicalName(); //Gyro New
+        String fragmentTag2= FRAGMENT_CLASSES.get(2131624159).getCanonicalName(); //Gyro New
         //2131165353
 
 
@@ -511,16 +484,12 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
 
             if (currentFragment2 == null) {
                 try {
-                    currentFragment2= FRAGMENT_CLASSES.get(2131624140).getConstructor().newInstance();//new gyro
+                    currentFragment2= FRAGMENT_CLASSES.get(2131624159).getConstructor().newInstance();//new gyro
                 } catch (Exception e) {
                     throw new RuntimeException("Cannot instantiate fragment", e);
                 }
 
                 transaction.add(R.id.container2, currentFragment2, fragmentTag2);
-                FrameLayout f;
-                f = (FrameLayout) findViewById(R.id.container2);
-                f.setVisibility(View.VISIBLE);
-
             }
         }
 
@@ -529,8 +498,8 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
             transaction.attach(currentFragment2);
             transaction.commit();
         } else {
-                transaction.attach(currentFragment);
-                transaction.commit();
+            transaction.attach(currentFragment);
+            transaction.commit();
         }
 
         ActionBar actionBar = getSupportActionBar();
@@ -602,7 +571,6 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
         if (filename != null) {
             File dataFile = getFileStreamPath(filename);
             Uri contentUri = FileProvider.getUriForFile(this, "com.mbientlab.metawear.app.fileprovider", dataFile);
-
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.setType("text/plain");
             intent.putExtra(Intent.EXTRA_SUBJECT, filename);
@@ -618,8 +586,6 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
         GyroFragmentNew f2 = (GyroFragmentNew) fragmentManager.findFragmentByTag("com.christophergs.mbientbasic.GyroFragmentNew");
         f1.refreshChart(true);
         f2.refreshChart(true);
-        Button saveButton= (Button) findViewById(R.id.layout_two_button_right);
-        saveButton.setVisibility(View.VISIBLE);
 
     }
 
@@ -628,9 +594,6 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
         try {
             URL url = new URL("http://christophergs.pythonanywhere.com/api/csv");
             new DownloadFilesTask().execute(url);
-            //now that upload is complete we remove the upload button from the UI and replace with stats
-            Button saveButton= (Button) findViewById(R.id.layout_two_button_right);
-            saveButton.setVisibility(View.GONE);
         } catch (Exception e) {
             Log.e(TAG, "file send error", e);
             toastIt("File sending error!");
@@ -648,12 +611,9 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
         }
         fragmentTransaction.add(android.R.id.content, motionFragment);
         fragmentTransaction.commit();*/
-        EXPERIMENT_ID = getEIDValue();
 
         Intent navActivityIntent = new Intent(NavigationActivity.this, StatsActivity.class);
         navActivityIntent.putExtra(NavigationActivity.EXTRA_BT_DEVICE, btDevice);
-        Log.i(TAG, String.format("pie button eid: %s", EXPERIMENT_ID));
-        navActivityIntent.putExtra("EXPERIMENT", EXPERIMENT_ID);
         startActivityForResult(navActivityIntent, REQUEST_START_APP);
     }
 
