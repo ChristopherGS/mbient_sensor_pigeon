@@ -14,27 +14,47 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingTop="50dp">
+            >
 
             <TableRow>
-                <TextView android:layout_width="match_parent" android:layout_height="match_parent"
-                    android:text="Select Time Period"
-                    android:textStyle="bold"
-                    android:textSize="20dp" />
+            <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-                <Spinner
-                    android:id="@+id/dashboard_time"
-                    android:layout_width="300dp"
-                    android:layout_height="63dp"
-                    android:dropDownVerticalOffset="-53dp"
-                    android:spinnerMode="dropdown"
-                    android:drawSelectorOnTop="true"
-                    android:entries="@array/dashboard_times"
-                    android:prompt="@string/prompt" />
+                <android.support.design.widget.AppBarLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+                    <android.support.v7.widget.Toolbar
+                        android:id="@+id/toolbar"
+                        android:layout_width="match_parent"
+                        android:layout_height="?attr/actionBarSize"
+                        android:background="?attr/colorPrimary"
+                        app:layout_scrollFlags="scroll|enterAlways"
+                        app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+
+                    <android.support.design.widget.TabLayout
+                        android:id="@+id/tabs"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:tabMode="fixed"
+                        app:tabGravity="center" />
+
+                </android.support.design.widget.AppBarLayout>
+
+                <android.support.v4.view.ViewPager
+                    android:id="@+id/viewpager"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:layout_behavior="@string/appbar_scrolling_view_behavior"  />
+            </android.support.design.widget.CoordinatorLayout>
             </TableRow>
 
             <TableRow android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp">
+                android:layout_marginBottom="5dp"
+                android:paddingTop="50dp">
                 <FrameLayout
                     android:layout_height="wrap_content"
                     android:layout_width="0dp"

@@ -33,4 +33,11 @@
 <resources>
   <color name="action_text">#3D3AB0</color>
   <color name="actionBarColor">#758cc0</color>
+
+    <color name="colorPrimary">#125688</color>
+    <color name="colorPrimaryDark">#125688</color>
+    <color name="textColorPrimary">#FFFFFF</color>
+    <color name="windowBackground">#FFFFFF</color>
+    <color name="navigationBarColor">#000000</color>
+    <color name="colorAccent">#c8e8ff</color>
 </resources>
