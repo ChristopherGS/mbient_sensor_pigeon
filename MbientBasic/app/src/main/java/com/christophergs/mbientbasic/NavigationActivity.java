@@ -84,7 +84,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class NavigationActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
-        BothFragment.OnFragTestListener, MotionFragment.OnFragmentInteractionListener, ServiceConnection, FragmentBus {
+        BothFragment.OnFragTestListener, MotionFragment.OnFragmentInteractionListener, HomeFragment.OnFragTestListener,
+        ServiceConnection, FragmentBus {
     public static final String EXTRA_BT_DEVICE= "EXTRA_BT_DEVICE";
     private final static String FRAGMENT_KEY= "FRAGMENT_KEY";
     private static final Map<Integer, Class<? extends ModuleFragmentBase>> FRAGMENT_CLASSES;
@@ -482,7 +483,7 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
         //we keep tag 1 as the per the mbient code and make tag 2 the adjusted gyro,
         //knowing that the BothFragment is a copy of accelerometer with stream adjustments
         String fragmentTag= FRAGMENT_CLASSES.get(id).getCanonicalName();
-        String fragmentTag2= FRAGMENT_CLASSES.get(2131624140).getCanonicalName(); //Gyro New
+        String fragmentTag2= FRAGMENT_CLASSES.get(2131624141).getCanonicalName(); //Gyro New
         //2131165353
 
 
@@ -511,7 +512,7 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
 
             if (currentFragment2 == null) {
                 try {
-                    currentFragment2= FRAGMENT_CLASSES.get(2131624140).getConstructor().newInstance();//new gyro
+                    currentFragment2= FRAGMENT_CLASSES.get(2131624141).getConstructor().newInstance();//new gyro
                 } catch (Exception e) {
                     throw new RuntimeException("Cannot instantiate fragment", e);
                 }
@@ -621,6 +622,16 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
         Button saveButton= (Button) findViewById(R.id.layout_two_button_right);
         saveButton.setVisibility(View.VISIBLE);
 
+    }
+
+
+    public void onDashButtonPressed(int position) {
+        Log.i(TAG, String.format("Dashboard TEST: %d", position));
+        Intent dashActivityIntent = new Intent(NavigationActivity.this, DashboardActivity.class);
+        //dashActivityIntent.putExtra(NavigationActivity.EXTRA_BT_DEVICE, btDevice);
+        //Log.i(TAG, String.format("pie button eid: %s", EXPERIMENT_ID));
+        //dashActivityIntent.putExtra("EXPERIMENT", EXPERIMENT_ID);
+        startActivityForResult(dashActivityIntent, 1);
     }
 
     public void sendFile() {

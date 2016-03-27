@@ -277,4 +277,7 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_suggestion">Suggested Moves</string>
     <string name="title_activity_video">VideoActivity</string>
+    <string name="title_activity_dashboard">Dashboard</string>
+  <string name="prompt">Select time frame</string>
 </resources>
+

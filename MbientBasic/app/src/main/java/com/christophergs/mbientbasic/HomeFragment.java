@@ -31,12 +31,14 @@
 
 package com.christophergs.mbientbasic;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -47,6 +49,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -66,6 +69,7 @@ import com.mbientlab.metawear.module.Switch;
  */
 public class HomeFragment extends ModuleFragmentBase {
     private Led ledModule;
+    OnFragTestListener mCallback;
 
     public HomeFragment() {
         super(R.string.navigation_fragment_home);
@@ -111,6 +115,20 @@ public class HomeFragment extends ModuleFragmentBase {
     public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
         setRetainInstance(true);
         return inflater.inflate(R.layout.fragment_home, container, false);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        // This makes sure that the container activity has implemented
+        // the callback interface. If not, it throws an exception
+        try {
+            mCallback = (OnFragTestListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement OnFragTestListener");
+        }
     }
 
     @Override
@@ -175,6 +193,14 @@ public class HomeFragment extends ModuleFragmentBase {
             @Override
             public void onClick(View view) {
 
+            }
+        });
+
+        Button dashButton= (Button) view.findViewById(R.id.dashboard_button);
+        dashButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mCallback.onDashButtonPressed(1);
             }
         });
     }
@@ -252,7 +278,7 @@ public class HomeFragment extends ModuleFragmentBase {
                     public void failure(Throwable error) {
                         Log.e("MetaWearApp", "Firmware update failed", error);
 
-                        Throwable cause= error.getCause() == null ? error : error.getCause();
+                        Throwable cause = error.getCause() == null ? error : error.getCause();
                         ((DialogFragment) getFragmentManager().findFragmentByTag(DFU_PROGRESS_FRAGMENT_TAG)).dismiss();
                         builder.setContentTitle(getString(R.string.notify_dfu_fail)).setSmallIcon(android.R.drawable.ic_dialog_alert)
                                 .setContentText(cause.getLocalizedMessage());
@@ -272,6 +298,10 @@ public class HomeFragment extends ModuleFragmentBase {
 
     @Override
     protected void fillHelpOptionAdapter(HelpOptionAdapter adapter) {
+
+    }
+
+    public void open_dashboard(View v){
 
     }
 
@@ -357,5 +387,9 @@ public class HomeFragment extends ModuleFragmentBase {
                 v.findViewById(id).setEnabled(false);
             }
         }
+    }
+
+    public interface OnFragTestListener{
+        public void onDashButtonPressed(int position);
     }
 }
