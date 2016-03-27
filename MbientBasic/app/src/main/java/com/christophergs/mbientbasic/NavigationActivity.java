@@ -91,6 +91,7 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
     private static final Map<Integer, Class<? extends ModuleFragmentBase>> FRAGMENT_CLASSES;
     private static final String TAG = "MetaWear";
     public String EXPERIMENT_ID = "105"; //test 1
+    public int ALTGYRO_ID = 2131624154; //test 1; //test 1
 
     public static final int REQUEST_START_APP= 1;
 
@@ -483,7 +484,7 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
         //we keep tag 1 as the per the mbient code and make tag 2 the adjusted gyro,
         //knowing that the BothFragment is a copy of accelerometer with stream adjustments
         String fragmentTag= FRAGMENT_CLASSES.get(id).getCanonicalName();
-        String fragmentTag2= FRAGMENT_CLASSES.get(2131624141).getCanonicalName(); //Gyro New
+        String fragmentTag2= FRAGMENT_CLASSES.get(ALTGYRO_ID).getCanonicalName(); //Gyro New
         //2131165353
 
 
@@ -512,7 +513,7 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
 
             if (currentFragment2 == null) {
                 try {
-                    currentFragment2= FRAGMENT_CLASSES.get(2131624141).getConstructor().newInstance();//new gyro
+                    currentFragment2= FRAGMENT_CLASSES.get(ALTGYRO_ID).getConstructor().newInstance();//new gyro
                 } catch (Exception e) {
                     throw new RuntimeException("Cannot instantiate fragment", e);
                 }

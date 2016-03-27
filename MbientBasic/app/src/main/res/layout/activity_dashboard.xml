@@ -33,28 +33,25 @@
                     android:prompt="@string/prompt" />
             </TableRow>
 
-            <TableRow>
+            <TableRow android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp">
                 <FrameLayout
                     android:layout_height="wrap_content"
                     android:layout_width="0dp"
                     android:layout_weight="1" >
 
-                    <com.makeramen.roundedimageview.RoundedImageView
+                    <de.hdodenhof.circleimageview.CircleImageView
                         xmlns:app="http://schemas.android.com/apk/res-auto"
                         android:src="@drawable/mount_hi_res"
-                        app:riv_corner_radius="15dip"
-                        app:riv_border_width="2dip"
-                        app:riv_border_color="#333333"
-                        app:riv_mutate_background="true"
-                        app:riv_oval="true"
-                        android:scaleType="centerInside"
-                        android:adjustViewBounds="true"
                         android:paddingTop="5dp"
                         android:paddingBottom="5dp"
+                        android:paddingLeft="5dp"
                         android:id="@+id/mount_db_image"
                         android:layout_width="175dp"
                         android:layout_height="175dp"
-                        android:layout_gravity="left" />
+                        android:layout_gravity="left"
+                        app:civ_border_width="2dp"
+                        app:civ_border_color="#FF000000"/>
 
                 </FrameLayout>
 
@@ -102,30 +99,26 @@
 
 
 
-            <TableRow>
+            <TableRow android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp">
 
                 <FrameLayout
                     android:layout_height="wrap_content"
                     android:layout_width="0dp"
                     android:layout_weight="1" >
 
-                    <com.makeramen.roundedimageview.RoundedImageView
+                    <de.hdodenhof.circleimageview.CircleImageView
                         xmlns:app="http://schemas.android.com/apk/res-auto"
                         android:src="@drawable/mount_hi_res"
-                        app:riv_corner_radius="15dip"
-                        app:riv_border_width="2dip"
-                        app:riv_border_color="#333333"
-                        app:riv_mutate_background="true"
-                        app:riv_oval="true"
-                        android:scaleType="centerInside"
-                        android:adjustViewBounds="true"
+                        android:paddingTop="5dp"
+                        android:paddingBottom="5dp"
+                        android:paddingLeft="5dp"
                         android:id="@+id/back_mount_db_image"
                         android:layout_width="175dp"
                         android:layout_height="175dp"
-                        android:paddingTop="5dp"
-                        android:paddingBottom="5dp"
                         android:layout_gravity="left"
-                        android:layout_below="@+id/mount_db_image" />
+                        app:civ_border_width="2dp"
+                        app:civ_border_color="#FF000000"/>
 
                 </FrameLayout>
 
@@ -170,30 +163,26 @@
 
             </TableRow>
 
-            <TableRow>
+            <TableRow android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp">
 
                 <FrameLayout
                     android:layout_height="wrap_content"
                     android:layout_width="0dp"
                     android:layout_weight="1" >
 
-                    <com.makeramen.roundedimageview.RoundedImageView
+                    <de.hdodenhof.circleimageview.CircleImageView
                         xmlns:app="http://schemas.android.com/apk/res-auto"
                         android:src="@drawable/mount_hi_res"
-                        app:riv_corner_radius="15dip"
-                        app:riv_border_width="2dip"
-                        app:riv_border_color="#333333"
-                        app:riv_mutate_background="true"
-                        app:riv_oval="true"
-                        android:scaleType="centerInside"
-                        android:adjustViewBounds="true"
-                        android:id="@+id/sc_db_image"
-                        android:layout_width="175dp"
-                        android:layout_height="175dp"
                         android:paddingTop="5dp"
                         android:paddingBottom="5dp"
+                        android:paddingLeft="5dp"
+                        android:id="@+id/side_db_image"
+                        android:layout_width="175dp"
+                        android:layout_height="175dp"
                         android:layout_gravity="left"
-                        android:layout_below="@+id/back_mount_db_image" />
+                        app:civ_border_width="2dp"
+                        app:civ_border_color="#FF000000"/>
 
                 </FrameLayout>
 
