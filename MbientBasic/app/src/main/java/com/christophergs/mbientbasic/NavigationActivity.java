@@ -91,7 +91,7 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
     private static final Map<Integer, Class<? extends ModuleFragmentBase>> FRAGMENT_CLASSES;
     private static final String TAG = "MetaWear";
     public String EXPERIMENT_ID = "105"; //test 1
-    public int ALTGYRO_ID = 2131624156; //test 1; //test 1
+    public int ALTGYRO_ID = 2131624183; //test 1; //test 1
 
     public static final int REQUEST_START_APP= 1;
 
