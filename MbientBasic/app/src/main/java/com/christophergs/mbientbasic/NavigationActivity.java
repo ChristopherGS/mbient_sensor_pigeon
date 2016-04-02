@@ -91,7 +91,7 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
     private static final Map<Integer, Class<? extends ModuleFragmentBase>> FRAGMENT_CLASSES;
     private static final String TAG = "MetaWear";
     public String EXPERIMENT_ID = "105"; //test 1
-    public int ALTGYRO_ID = 2131624183; //test 1; //test 1
+    public int ALTGYRO_ID = 2131624185; //test 1; //test 1
 
     public static final int REQUEST_START_APP= 1;
 
@@ -452,6 +452,18 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
                 } catch (UnsupportedModuleException e) {
                     Snackbar.make(findViewById(R.id.drawer_layout), R.string.error_soft_reset, Snackbar.LENGTH_LONG).show();
                 }
+                return true;
+            case R.id.action_set_motion_ymount:
+                setEIDValue("9999");
+                return true;
+            case R.id.action_set_motion_ybc:
+                setEIDValue("9998");
+                return true;
+            case R.id.action_set_motion_ysc:
+                setEIDValue("9997");
+                return true;
+            case R.id.action_set_motion_ycg:
+                setEIDValue("9996");
                 return true;
             case R.id.action_disconnect:
                 mwBoard.setConnectionStateHandler(null);

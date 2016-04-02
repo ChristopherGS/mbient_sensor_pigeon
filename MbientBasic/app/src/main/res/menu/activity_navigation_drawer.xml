@@ -26,11 +26,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group android:checkableBehavior="single">
         <item android:id="@+id/nav_home" android:title="@string/navigation_fragment_home" android:checked="true" />
+        <item android:id="@+id/nav_both" android:title="@string/navigation_fragment_both" />
         <item android:id="@+id/nav_accelerometer" android:title="@string/navigation_fragment_accelerometer" />
         <item android:id="@+id/nav_gyro" android:title="@string/navigation_fragment_gyro" />
-        <item android:id="@+id/nav_gyro_new" android:title="AltGyr" />
-        <item android:id="@+id/nav_both" android:title="@string/navigation_fragment_both" />
+        <item android:id="@+id/nav_gyro_new" android:title="LED" />
         <item android:id="@+id/nav_settings" android:title="@string/navigation_fragment_settings" />
-        <item android:id="@+id/nav_settings" android:title="@string/navigation_fragment_pie" />
     </group>
 </menu>

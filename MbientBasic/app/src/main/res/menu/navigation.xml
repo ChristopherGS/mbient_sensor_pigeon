@@ -5,4 +5,12 @@
         app:showAsAction="withText|ifRoom" />
     <item android:id="@+id/action_reset" android:title="@string/action_reset"
         android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/action_set_motion_ymount" android:title="set ymount"
+        android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/action_set_motion_ybc" android:title="set ybc"
+        android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/action_set_motion_ysc" android:title="set ysc"
+        android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/action_set_motion_ycg" android:title="set ycg"
+        android:orderInCategory="100" app:showAsAction="never" />
 </menu>

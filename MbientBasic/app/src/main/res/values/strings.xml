@@ -256,8 +256,8 @@
   <string name="navigation_fragment_accelerometer">Accelerometer</string>
   <string name="navigation_fragment_barometer">Barometer</string>
   <string name="navigation_fragment_gpio">Gpio</string>
-  <string name="navigation_fragment_gyro">Gyro</string>
-  <string name="navigation_fragment_gyro_new">GyroAlt</string>
+  <string name="navigation_fragment_gyro">Gyroscope</string>
+  <string name="navigation_fragment_gyro_new">LED</string>
   <string name="navigation_fragment_haptic">Haptic</string>
   <string name="navigation_fragment_ibeacon">iBeacon</string>
   <string name="navigation_fragment_light">Light</string>
@@ -266,7 +266,7 @@
   <string name="navigation_fragment_settings">Settings</string>
   <string name="navigation_fragment_temperature">Temperature</string>
   <string name="navigation_fragment_pie">Pie Chart</string>
-  <string name="navigation_fragment_both">Accel+Gyro</string>
+  <string name="navigation_fragment_both">Record Motion</string>
   <string name="title_activity_record">Record</string>
 
 <!-- TODO: Remove or change this placeholder text -->
