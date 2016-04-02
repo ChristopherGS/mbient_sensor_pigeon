@@ -104,9 +104,9 @@ public class TimeBFragment extends Fragment {
             textView11.setText("17 mins");
             textView12.setText("9%");
             textView13.setText("12 mins");
-            textView14.setText("1%");
-            textView15.setText("0 mins");
-            textView16.setText("0%");
+            textView14.setText("2%");
+            textView15.setText("14 mins");
+            textView16.setText("3%");
         } else if (mPage == 3) {
             textView1.setText("51 minutes");
             textView2.setText("23%");
@@ -114,16 +114,16 @@ public class TimeBFragment extends Fragment {
             textView4.setText("10%");
             textView5.setText("22 minutes");
             textView6.setText("6%");
-            textView7.setText("0 mins");
-            textView8.setText("0%");
+            textView7.setText("19 mins");
+            textView8.setText("3%");
             textView9.setText("12 mins");
             textView10.setText("3%");
             textView11.setText("68 mins");
             textView12.setText("13%");
-            textView13.setText("0 mins");
-            textView14.setText("0%");
-            textView15.setText("0 mins");
-            textView16.setText("0%");
+            textView13.setText("22 mins");
+            textView14.setText("4%");
+            textView15.setText("17 mins");
+            textView16.setText("3%");
         } else {
             textView1.setText("410 mins");
             textView2.setText("28%");

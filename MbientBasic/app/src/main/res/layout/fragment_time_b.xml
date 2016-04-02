@@ -24,14 +24,16 @@
                     android:layout_gravity="center"
                     android:layout_toRightOf="@id/mount_db_image"
                     android:paddingBottom="20dp"
-                    android:paddingTop="20dp"
+                    android:paddingTop="30dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
                     android:id="@+id/your_text"
                     android:textAlignment="center"
                     android:textStyle="italic"
                     android:layout_alignParentRight="true"
                     style="bold"
                     android:gravity="center_horizontal"
-                    android:textSize="18dp" />
+                    android:textSize="16dp" />
 
                 <TextView android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -97,14 +99,16 @@
                     android:text="Opponent"
                     android:layout_gravity="center"
                     android:paddingBottom="20dp"
-                    android:paddingTop="20dp"
+                    android:paddingTop="30dp"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="15dp"
                     android:id="@+id/opponent_text"
                     android:textAlignment="center"
                     android:textStyle="italic"
                     android:layout_alignParentRight="true"
                     style="bold"
                     android:gravity="center_horizontal"
-                    android:textSize="18dp" />
+                    android:textSize="16dp" />
 
                 <TextView android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -145,14 +149,16 @@
                     android:text="Yours"
                     android:layout_gravity="center"
                     android:paddingBottom="20dp"
-                    android:paddingTop="20dp"
+                    android:paddingTop="30dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
                     android:id="@+id/your_text2"
                     android:textAlignment="center"
                     android:textStyle="italic"
                     android:layout_alignParentRight="true"
                     style="bold"
                     android:gravity="center_horizontal"
-                    android:textSize="18dp" />
+                    android:textSize="16dp" />
 
                 <TextView android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -190,7 +196,7 @@
 
                 <de.hdodenhof.circleimageview.CircleImageView
                     xmlns:app="http://schemas.android.com/apk/res-auto"
-                    android:src="@drawable/mount_hi_res"
+                    android:src="@drawable/practice_back_mount"
                     android:paddingTop="5dp"
                     android:paddingBottom="5dp"
                     android:paddingLeft="0dp"
@@ -217,12 +223,14 @@
                     android:text="Opponent"
                     android:layout_gravity="center"
                     android:paddingBottom="20dp"
-                    android:paddingTop="20dp"
+                    android:paddingTop="30dp"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="15dp"
                     android:id="@+id/opponent_text2"
                     android:textAlignment="center"
                     android:textStyle="italic"
                     android:gravity="center_horizontal"
-                    android:textSize="18dp" />
+                    android:textSize="16dp" />
 
                 <TextView android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -261,13 +269,15 @@
                     android:text="Yours"
                     android:layout_gravity="center"
                     android:paddingBottom="20dp"
-                    android:paddingTop="20dp"
+                    android:paddingTop="30dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
                     android:id="@+id/your_text3"
                     android:textAlignment="center"
                     android:textStyle="italic"
                     style="bold"
                     android:gravity="center_horizontal"
-                    android:textSize="18dp" />
+                    android:textSize="16dp" />
 
                 <TextView android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -305,7 +315,7 @@
 
                 <de.hdodenhof.circleimageview.CircleImageView
                     xmlns:app="http://schemas.android.com/apk/res-auto"
-                    android:src="@drawable/mount_hi_res"
+                    android:src="@drawable/practice_side_mount"
                     android:paddingTop="5dp"
                     android:paddingBottom="5dp"
                     android:paddingLeft="0dp"
@@ -334,14 +344,16 @@
                     android:text="Opponent"
                     android:layout_gravity="center"
                     android:paddingBottom="20dp"
-                    android:paddingTop="20dp"
+                    android:paddingTop="30dp"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="15dp"
                     android:id="@+id/opponent_text3"
                     android:textAlignment="center"
                     android:textStyle="italic"
                     android:layout_alignParentRight="true"
                     style="bold"
                     android:gravity="center_horizontal"
-                    android:textSize="18dp" />
+                    android:textSize="16dp" />
 
                 <TextView android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -381,7 +393,9 @@
                     android:layout_gravity="center"
                     android:layout_toRightOf="@id/mount_db_image"
                     android:paddingBottom="20dp"
-                    android:paddingTop="20dp"
+                    android:paddingTop="30dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
                     android:id="@+id/your_text4"
                     android:layout_alignBottom="@+id/dashboard_time"
                     android:textAlignment="center"
@@ -389,7 +403,7 @@
                     android:layout_alignParentRight="true"
                     style="bold"
                     android:gravity="center_horizontal"
-                    android:textSize="18dp" />
+                    android:textSize="16dp" />
 
                 <TextView android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -427,7 +441,7 @@
 
                 <de.hdodenhof.circleimageview.CircleImageView
                     xmlns:app="http://schemas.android.com/apk/res-auto"
-                    android:src="@drawable/mount_hi_res"
+                    android:src="@drawable/practice_closed_guard"
                     android:paddingTop="5dp"
                     android:paddingBottom="5dp"
                     android:paddingLeft="0dp"
@@ -455,7 +469,9 @@
                     android:layout_gravity="center"
                     android:layout_toRightOf="@id/mount_db_image"
                     android:paddingBottom="20dp"
-                    android:paddingTop="20dp"
+                    android:paddingTop="30dp"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="15dp"
                     android:id="@+id/opponent_text4"
                     android:layout_alignBottom="@+id/dashboard_time"
                     android:textAlignment="center"
@@ -463,7 +479,7 @@
                     android:layout_alignParentRight="true"
                     style="bold"
                     android:gravity="center_horizontal"
-                    android:textSize="18dp" />
+                    android:textSize="16dp" />
 
                 <TextView android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

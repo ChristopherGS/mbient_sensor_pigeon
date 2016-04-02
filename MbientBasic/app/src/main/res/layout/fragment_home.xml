@@ -47,7 +47,7 @@
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="@string/label_device_information"
             android:id="@+id/dsg_logo"
-            android:src="@drawable/dsg_logo5"
+            android:src="@drawable/dsg_logo_final"
             android:layout_gravity="center_horizontal"
             android:paddingBottom="30dp"
             android:paddingTop="30dp"/>
