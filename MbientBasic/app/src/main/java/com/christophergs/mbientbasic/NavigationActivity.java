@@ -462,8 +462,14 @@ public class NavigationActivity extends AppCompatActivity implements NavigationV
             case R.id.action_set_motion_ysc:
                 setEIDValue("9997");
                 return true;
-            case R.id.action_set_motion_ycg:
+            case R.id.action_set_motion_obc:
                 setEIDValue("9996");
+                return true;
+            case R.id.action_set_motion_ysc_ymount_ybc:
+                setEIDValue("9995");
+                return true;
+            case R.id.action_set_motion_omount_obc:
+                setEIDValue("9994");
                 return true;
             case R.id.action_disconnect:
                 mwBoard.setConnectionStateHandler(null);

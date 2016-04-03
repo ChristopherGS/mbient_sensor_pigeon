@@ -11,6 +11,10 @@
         android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/action_set_motion_ysc" android:title="set ysc"
         android:orderInCategory="100" app:showAsAction="never" />
-    <item android:id="@+id/action_set_motion_ycg" android:title="set ycg"
+    <item android:id="@+id/action_set_motion_obc" android:title="set obc"
+        android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/action_set_motion_ysc_ymount_ybc" android:title="set ycg_ymount_ybc"
+        android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/action_set_motion_omount_obc" android:title="set omount_obc"
         android:orderInCategory="100" app:showAsAction="never" />
 </menu>

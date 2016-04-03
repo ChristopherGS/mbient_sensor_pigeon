@@ -67,8 +67,8 @@ public class StatsActivity extends AppCompatActivity implements OnSeekBarChangeL
 
     private float[] yData = { ymount_F, ysc_F, ybc_F, ycg_F, omountsc_F, obc_F, ocg_F, OTHER_F };
     private String[] mParties = new String[]{ "Party A", "Party B", "Party C", "Party D", "Party E", "Party F", "Party G", "Party H" };
-    private String[] xData = { "Your Mount", "Your Side Control", "Your Back Control", "Your Closed Guard",
-                                "Opponent Mount or Side Control", "Opponent Back Control", "Opponent Closed Guard",
+    private String[] xData = { "Your Mount", "Your Side Control", "Your Back Control", "Your Guard",
+                                "Opponent Mount or Side Control", "Opponent Back Control", "Opponent Guard",
                                 "Other"};
 
 
@@ -161,7 +161,19 @@ public class StatsActivity extends AppCompatActivity implements OnSeekBarChangeL
         // update pie chart
         mChart.invalidate();
 
-        getAnalysis(EXPERIMENT_ID);
+        int EXPERIMENT_ID_INT = 0;
+
+        try {
+            EXPERIMENT_ID_INT = Integer.parseInt(EXPERIMENT_ID);
+        } catch(NumberFormatException nfe) {
+            System.out.println("Could not parse " + nfe);
+        }
+
+        if (EXPERIMENT_ID_INT > 9990) {
+            getDummyAnalysis(EXPERIMENT_ID);
+        } else {
+            getAnalysis(EXPERIMENT_ID);
+        }
     }
 
     @Override
@@ -202,9 +214,21 @@ public class StatsActivity extends AppCompatActivity implements OnSeekBarChangeL
         return true;
     }
 
+    public float[] setDummyValues(float _ymount, float _ybc, float _ycg, float _ysc,
+                                  float _omountsc, float _obc, float _ocg, float _OTHER){
+        float ymount_F = _ymount;
+        float ybc_F = _ybc;
+        float ycg_F = _ycg;
+        float ysc_F = _ysc;
+        float omountsc_F = _omountsc;
+        float obc_F = _obc;
+        float ocg_F = _ocg;
+        float OTHER_F = _OTHER;
 
+        return new float[]{ymount_F, ysc_F, ybc_F, ycg_F, omountsc_F, obc_F, ocg_F, OTHER_F};
+    }
 
-    public void getAnalysis(String EXPERIMENT_ID) {
+    public void getDummyAnalysis(String EXPERIMENT_ID) {
         toastIt("Getting analysis from server");
         Log.i(TAG, String.format("Experiment ID: %s", EXPERIMENT_ID));
         final ProgressDialog tDialog;
@@ -222,18 +246,31 @@ public class StatsActivity extends AppCompatActivity implements OnSeekBarChangeL
             }
         }, delayInMillis);
 
-        // DUMMY DATA: 9999 is set as 88% mount
-        if ("9999".equals(EXPERIMENT_ID)) {
-            Log.i(TAG, String.format("SET DATA: %s", EXPERIMENT_ID));
-            float ymount_F = 0.88f;
-            float ybc_F = 0;
-            float ycg_F = 0;
-            float ysc_F = 0;
-            float omountsc_F = 0;
-            float obc_F = 0;
-            float ocg_F = 0;
-            float OTHER_F = 0.12f;
-            yData = new float[]{ymount_F, ysc_F, ybc_F, ycg_F, omountsc_F, obc_F, ocg_F, OTHER_F};
+        // DUMMY DATA: NOTE THAT THE ORDER OF ARGUMENTS IS DIFFERENT TO THE X-AXIS SETUP. Adjusted with "setDummyValues"
+        if ("9999".equals(EXPERIMENT_ID)){
+            /*float ymount_F = 0.88f; float ybc_F = 0; float ycg_F = 0; float ysc_F = 0;float omountsc_F = 0;float obc_F = 0;float ocg_F = 0;float OTHER_F = 0.12f;*/
+            yData = setDummyValues(0.88f, 0, 0, 0, 0, 0, 0, 0.12f);
+        }
+        else if ("9998".equals(EXPERIMENT_ID)){
+            /*float ymount_F = 0; float ybc_F = 0.87f; float ycg_F = 0; float ysc_F = 0;float omountsc_F = 0;float obc_F = 0;float ocg_F = 0;float OTHER_F = 0.13f;*/
+            yData = setDummyValues(0, 0.87f, 0, 0, 0, 0, 0, 0.13f);
+        }
+        else if ("9997".equals(EXPERIMENT_ID)){
+            /*float ymount_F = 0f; float ybc_F = 0; float ycg_F = 0; float ysc_F = 0.91f;float omountsc_F = 0;float obc_F = 0;float ocg_F = 0;float OTHER_F = 0.09f;*/
+            yData = setDummyValues(0, 0, 0, 0.91f, 0, 0, 0, 0.09f);
+        }
+        else if ("9996".equals(EXPERIMENT_ID)){
+            /*float ymount_F = 0; float ybc_F = 0; float ycg_F = 0; float ysc_F = 0;float omountsc_F = 0;float obc_F = 0.90f;float ocg_F = 0;float OTHER_F = 0.12f;*/
+            yData = setDummyValues(0, 0, 0, 0, 0, 0.90f, 0, 0.10f);
+        }
+        else if ("9995".equals(EXPERIMENT_ID)){
+            /*float ymount_F = 0.32f; float ybc_F = 0.28f; float ycg_F = 0; float ysc_F = 0.29f;float omountsc_F = 0;float obc_F = 0;float ocg_F = 0;float OTHER_F = 0.11f;*/
+            yData = setDummyValues(0.32f, 0.28f, 0, 0.29f, 0, 0, 0, 0.11f);
+        }
+        else if ("9994".equals(EXPERIMENT_ID)){
+            /*float ymount_F = 0; float ybc_F = 0; float ycg_F = 0; float ysc_F = 0;float omountsc_F = 0.40f;float obc_F = 0.5f;float ocg_F = 0;float OTHER_F = 0.10f;*/
+            yData = setDummyValues(0, 0, 0, 0, 0.40f, 0.50f, 0, 0.10f);
+        }
             ArrayList<Entry> yVals1 = new ArrayList<Entry>();
             ArrayList<Integer> keepVals = new ArrayList<>();
 
@@ -287,15 +324,16 @@ public class StatsActivity extends AppCompatActivity implements OnSeekBarChangeL
             mChart.animateY(2000);
             // update pie chart
             mChart.invalidate();
-        } else {
-            Log.i(TAG, String.format("DOWNLOADING ANALYSIS: %s", EXPERIMENT_ID));
-            try {
-                URL url = new URL("http://christophergs.pythonanywhere.com/api/analyze/" + EXPERIMENT_ID);
-                new DownloadFilesTask().execute(url);
-            } catch (Exception e) {
-                Log.e(TAG, "file send error", e);
-                toastIt("File sending error!");
-            }
+        }
+
+    public void getAnalysis(String EXPERIMENT_ID) {
+        Log.i(TAG, String.format("DOWNLOADING ANALYSIS: %s", EXPERIMENT_ID));
+        try {
+            URL url = new URL("http://christophergs.pythonanywhere.com/api/analyze/" + EXPERIMENT_ID);
+            new DownloadFilesTask().execute(url);
+        } catch (Exception e) {
+            Log.e(TAG, "file send error", e);
+            toastIt("File sending error!");
         }
     }
 
@@ -425,6 +463,7 @@ public class StatsActivity extends AppCompatActivity implements OnSeekBarChangeL
                 Log.i(TAG, String.valueOf(ymount_F));
 
                 yData = new float[]{ymount_F, ysc_F, ybc_F, ycg_F, omountsc_F, obc_F, ocg_F, OTHER_F};
+
                 ArrayList<Entry> yVals1 = new ArrayList<Entry>();
                 ArrayList<Integer> keepVals = new ArrayList<>();
 
