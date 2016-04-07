@@ -95,13 +95,13 @@ public class SuggestionActivity extends AppCompatActivity {
 
         public static ArrayList<User> getUsers() {
             ArrayList<User> users = new ArrayList<User>();
-            users.add(new User("Side Mount Escape - Hip Escape", "Jiu-Jitsu Brotherhood"));
+            users.add(new User("<a href=\"https://www.youtube.com/watch?v=0e0jMrZas-g\">Side Mount Escape 1</a>", "Jiu-Jitsu Brotherhood"));
             users.add(new User("<a href=\"https://www.youtube.com/watch?v=V7vmzcc3ldA\">Side Mount Escape - Sit up</a>", "Marcelo Garcia" ));
             users.add(new User("<a href=\"https://www.youtube.com/watch?v=jxiHY2AtG8w\">Side Mount Escape (No Gi)</a>", "Stephan Kesting"));
             users.add(new User("<a href=\"https://www.youtube.com/watch?v=x0j7muxW_1Y\">Side Mount Escape - Turtle</a>", "Ricardo Cavalcanti"));
-            users.add(new User("<a href=\"https://www.youtube.com/watch?v=4l9tP2gRuOo\">Side Mount Escape - Arm positions</a>", "Kurt Osiander" ));
-            users.add(new User("<a href=\"https://www.youtube.com/watch?v=g5dG5kLqlFw\">Side Mount Escapes - Rapid overview</a>", "Jason Scully"));
-            users.add(new User("<a href=\"https://www.youtube.com/watch?v=7lxafCrBvq0\">Side Mount Escapes - Fundamentals</a>", "Damian Maia"));
+            users.add(new User("<a href=\"https://www.youtube.com/watch?v=4l9tP2gRuOo\">Side Mount Escape - Core</a>", "Kurt Osiander" ));
+            users.add(new User("<a href=\"https://www.youtube.com/watch?v=g5dG5kLqlFw\">Side Mount Escapes - Rapid</a>", "Jason Scully"));
+            users.add(new User("<a href=\"https://www.youtube.com/watch?v=7lxafCrBvq0\">Side Mount Escapes - Keys</a>", "Damian Maia"));
             users.add(new User("<a href=\"https://www.youtube.com/watch?v=1d-HZD_R08s\">Side Mount - Surviving</a>", "Ryron Gracie"));
             return users;
 

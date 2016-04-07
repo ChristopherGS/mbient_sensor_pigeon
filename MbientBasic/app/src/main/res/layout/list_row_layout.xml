@@ -2,7 +2,7 @@
     android:layout_width="fill_parent"
     android:layout_height="?android:attr/listPreferredItemHeight"
     android:descendantFocusability="blocksDescendants"
-    android:padding="5dip" >
+    android:padding="2dp" >
 
     <ImageView
         android:id="@+id/icon"
@@ -10,7 +10,7 @@
         android:layout_height="fill_parent"
         android:layout_alignParentBottom="true"
         android:layout_alignParentTop="true"
-        android:layout_marginRight="9dip"
+        android:layout_marginRight="2dip"
         android:contentDescription="TODO"
         android:src="@drawable/ic_play_circle_outline_black" />
 
@@ -28,7 +28,7 @@
 
     <TextView
         android:id="@+id/firstLine"
-        android:layout_width="fill_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@id/secondLine"
         android:layout_alignParentRight="true"

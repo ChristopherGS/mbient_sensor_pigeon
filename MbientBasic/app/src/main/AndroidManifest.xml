@@ -51,6 +51,8 @@
         <activity
             android:name=".VideoActivity"
             android:hardwareAccelerated="true"
+            android:theme="@style/AppTheme.NoActionBar2"
+            android:screenOrientation="landscape"
             android:label="@string/title_activity_video" >
         </activity>
         <activity

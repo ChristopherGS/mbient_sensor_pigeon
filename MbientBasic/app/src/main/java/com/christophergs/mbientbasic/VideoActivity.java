@@ -4,9 +4,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.FrameLayout;
 
 public class VideoActivity extends AppCompatActivity {
 
@@ -15,6 +19,7 @@ public class VideoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video);
         WebView engine = (WebView) findViewById(R.id.webview);
+
         engine.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -22,7 +27,17 @@ public class VideoActivity extends AppCompatActivity {
             }
         });
         engine.getSettings().setJavaScriptEnabled(true);
-        String playVideo= "<html><body>Youtube video .. <br> <iframe class=\"youtube-player\" type=\"text/html\" width=\"640\" height=\"385\" src=\"https://www.youtube.com/embed/0e0jMrZas-g\" frameborder=\"0\"></body></html>";
+
+        engine.setHorizontalScrollBarEnabled(false);
+        engine.setVerticalScrollBarEnabled(false);
+        engine.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
+        engine.getSettings().setBuiltInZoomControls(false);
+        engine.getSettings().setAppCacheEnabled(true);
+        engine.setInitialScale(0);
+        engine.getSettings().setLoadWithOverviewMode(true);
+        engine.getSettings().setUseWideViewPort(true);
+
+        String playVideo= "<html><body><br> <iframe class=\"youtube-player\" type=\"text/html\" style=\"border: 0; width: 100%; height: 100%; padding:0px; margin:0px\" src=\"https://www.youtube.com/embed/0e0jMrZas-g\" frameborder=\"0\"></body></html>";
         engine.loadData(playVideo, "text/html", "utf-8");
     }
 
