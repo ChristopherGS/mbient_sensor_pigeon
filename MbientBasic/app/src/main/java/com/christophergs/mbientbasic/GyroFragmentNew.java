@@ -62,7 +62,7 @@ public class GyroFragmentNew extends ThreeAxisChartFragment {
     private static final String TAG = "MetaWear";
 
     private Bmi160Gyro gyroModule= null;
-    private int rangeIndex= 4;
+    private int rangeIndex= 1;
 
     public GyroFragmentNew() {
         super("rotation", R.layout.fragment_sensor_config_spinner2,

@@ -83,7 +83,7 @@ public class BothFragment extends ThreeAxisChartFragment {
 
     private Spinner accRangeSelection;
     private Bmi160Accelerometer accelModule= null;
-    private int rangeIndex= 3;
+    private int rangeIndex= 0; //THIS SETS THE INITIAL CHART RANGE
     private static final String TAG = "MetaWear";
     OnFragTestListener mCallback;
 
