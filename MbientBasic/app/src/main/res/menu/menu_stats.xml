@@ -18,4 +18,8 @@
         android:id="@+id/actionToggleHole"
         android:title="Toggle Hole">
     </item>
+    <item
+        android:id="@+id/actionTimeline"
+        android:title="Timeline">
+    </item>
 </menu>

@@ -30,7 +30,7 @@
   -->
 
 <resources>
-  <string name="app_name">Dojo Smart Gear</string>
+  <string name="app_name">RollTec</string>
 
   <string name="action_reset">Reset</string>
   <string name="action_scan">Scan</string>
@@ -256,7 +256,7 @@
   <string name="navigation_fragment_accelerometer">Accelerometer</string>
   <string name="navigation_fragment_barometer">Barometer</string>
   <string name="navigation_fragment_gpio">Gpio</string>
-  <string name="navigation_fragment_gyro">Gyroscope</string>
+  <string name="navigation_fragment_gyro">Gyro</string>
   <string name="navigation_fragment_gyro_new">LED</string>
   <string name="navigation_fragment_haptic">Haptic</string>
   <string name="navigation_fragment_ibeacon">iBeacon</string>

@@ -209,6 +209,14 @@ public class StatsActivity extends AppCompatActivity implements OnSeekBarChangeL
                     mChart.setDrawHoleEnabled(true);
                 mChart.invalidate();
                 break;
+            } case R.id.actionTimeline: {
+                toastIt("Timeline");
+                Intent navActivityIntent = new Intent(StatsActivity.this, SuggestionActivity.class);
+                //navActivityIntent.putExtra(NavigationActivity.EXTRA_BT_DEVICE, btDevice);
+                //Log.i(TAG, String.format("pie button eid: %s", EXPERIMENT_ID));
+                //navActivityIntent.putExtra("EXPERIMENT", EXPERIMENT_ID);
+                startActivityForResult(navActivityIntent, REQUEST_START_APP);
+                break;
             }
         }
         return true;
