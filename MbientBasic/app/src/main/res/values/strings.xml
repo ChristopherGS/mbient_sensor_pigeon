@@ -279,5 +279,6 @@
     <string name="title_activity_video">Suggested Moves</string>
     <string name="title_activity_dashboard">Dashboard</string>
   <string name="prompt">Select time frame</string>
+    <string name="title_activity_timeline">Timeline</string>
 </resources>
 

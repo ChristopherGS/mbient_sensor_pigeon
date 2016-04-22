@@ -1,5 +1,6 @@
 package com.christophergs.mbientbasic;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
@@ -37,6 +38,9 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -49,6 +53,15 @@ public class StatsActivity extends AppCompatActivity implements OnSeekBarChangeL
 
     //metawear variables
     public static String EXPERIMENT_ID = null;
+
+    //Timeline variables
+    public static String[] TIMELINE_POSITIONS = {"OTHER1", "OTHER2"};
+    public static String[] TIMELINE_POSITION_VALUES;
+
+    private List<String> test;
+
+
+
 
     //MPChart variables
     private RelativeLayout mainLayout;
@@ -211,11 +224,10 @@ public class StatsActivity extends AppCompatActivity implements OnSeekBarChangeL
                 break;
             } case R.id.actionTimeline: {
                 toastIt("Timeline");
-                Intent navActivityIntent = new Intent(StatsActivity.this, SuggestionActivity.class);
-                //navActivityIntent.putExtra(NavigationActivity.EXTRA_BT_DEVICE, btDevice);
-                //Log.i(TAG, String.format("pie button eid: %s", EXPERIMENT_ID));
-                //navActivityIntent.putExtra("EXPERIMENT", EXPERIMENT_ID);
-                startActivityForResult(navActivityIntent, REQUEST_START_APP);
+                Intent tlActivityIntent = new Intent(StatsActivity.this, TimelineActivity.class);
+                Log.i(TAG, String.format("passing sequence: %s", test));
+                tlActivityIntent.putStringArrayListExtra("SEQUENCE", (ArrayList<String>) test);
+                startActivityForResult(tlActivityIntent, REQUEST_START_APP);
                 break;
             }
         }
@@ -234,6 +246,22 @@ public class StatsActivity extends AppCompatActivity implements OnSeekBarChangeL
         float OTHER_F = _OTHER;
 
         return new float[]{ymount_F, ysc_F, ybc_F, ycg_F, omountsc_F, obc_F, ocg_F, OTHER_F};
+    }
+
+    public void setTimelineValues(String[] values){
+        Log.i(TAG, String.format("Setting Timeline Values... %s", values));
+
+        TIMELINE_POSITIONS = values;
+        test = new ArrayList<String>();
+
+        Collections.addAll(test, values);
+        /*for (String strings : values) {
+            test.add(strings);
+        }*/
+
+        //arrayList is nested so we select the first
+        Log.i(TAG, String.format("Shift timeline values to array... %s", test));
+
     }
 
     public void getDummyAnalysis(String EXPERIMENT_ID) {
@@ -472,10 +500,13 @@ public class StatsActivity extends AppCompatActivity implements OnSeekBarChangeL
 
                 yData = new float[]{ymount_F, ysc_F, ybc_F, ycg_F, omountsc_F, obc_F, ocg_F, OTHER_F};
 
+
+                TIMELINE_POSITION_VALUES = new String[]{serverResponse.getString("predictions")};
+                Log.i(TAG, String.format("Timeline positions: %s", TIMELINE_POSITION_VALUES));
+                setTimelineValues(TIMELINE_POSITION_VALUES);
+
                 ArrayList<Entry> yVals1 = new ArrayList<Entry>();
                 ArrayList<Integer> keepVals = new ArrayList<>();
-
-
 
                 for (int i = 0; i < yData.length; i++)
                     if (yData[i] > THRESHOLD) {
